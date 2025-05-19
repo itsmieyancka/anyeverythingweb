@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Str;
 
 class DepartmentResource extends Resource
 {
@@ -23,16 +24,40 @@ class DepartmentResource extends Resource
     {
         return $form
             ->schema([
-                //
-            ]);
+                    Forms\Components\TextInput::make('name')
+                        ->required()
+                        ->maxLength(100)
+                        ->live(onBlur: true)
+                        ->afterStateUpdated(function (string $operation, $state, callable $set) {
+                            if ($operation === 'create') {
+                                $set('slug', Str::slug($state));
+                            }
+                        }),
+
+                    Forms\Components\TextInput::make('slug')
+                        ->required()
+                        ->maxLength(100)
+                        ->unique(ignoreRecord: true),
+
+                    Forms\Components\Textarea::make('description')
+                        ->rows(3)
+                        ->maxLength(255),
+
+                    Forms\Components\Toggle::make('is_active')
+                        ->label('Active')
+                        ->default(true),
+                ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
-            ->columns([
-                //
-            ])
+            ->columns([Tables\Columns\TextColumn::make('slug')
+                ->label('Slug')
+                ->sortable()
+                ->searchable(),
+
+                ])
             ->filters([
                 //
             ])

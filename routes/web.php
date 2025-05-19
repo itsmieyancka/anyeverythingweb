@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserDashboardController;
 use App\Http\Controllers\VendorDashboardController;
+use App\Http\Controllers\ProductController;
 
 // Public route
 Route::get('/', function () {
@@ -19,8 +20,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // Vendor dashboard - only for users with 'vendor' role
-    Route::middleware('role:vendor')->group(function () {
-        Route::get('/vendor/dashboard', [VendorDashboardController::class, 'index'])->name('vendor.dashboard');
+    Route::middleware('role:vendor')->prefix('vendor')->group(function () {
+        Route::get('/dashboard', [VendorDashboardController::class, 'index'])->name('vendor.dashboard');
+
+        // ✅ Product resource CRUD routes for vendors
+        Route::resource('products', ProductController::class);
     });
 
     // Profile management (shared by both users and vendors)
@@ -31,4 +35,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 // Authentication routes (login, register, etc.)
 require __DIR__.'/auth.php';
+
 
