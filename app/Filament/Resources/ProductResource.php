@@ -3,6 +3,9 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProductResource\Pages;
+use App\Filament\Resources\ProductResource\Pages\ManageProductVariations;
+use App\Filament\Resources\ProductResource\RelationManagers\VariationSetsRelationManager;
+use App\Filament\Resources\ProductResource\RelationManagers\VariationTypesRelationManager;
 use App\Models\Product;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -17,6 +20,8 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Tables;
+use Filament\Resources\Pages\Page;
+
 
 class ProductResource extends Resource
 {
@@ -79,7 +84,7 @@ class ProductResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [ \App\Filament\Resources\ProductResource\RelationManagers\VariationTypesRelationManager::class, ];
     }
 
     public static function getPages(): array
@@ -88,6 +93,13 @@ class ProductResource extends Resource
             'index' => Pages\ListProducts::route('/'),
             'create' => Pages\CreateProduct::route('/create'),
             'edit' => Pages\EditProduct::route('/{record}/edit'),
+            'variations' => Pages\ManageProductVariations::route('/{record}/variations'),
+
         ];
     }
+
 }
+
+
+
+

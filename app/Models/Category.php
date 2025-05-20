@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Str;
 
 class Category extends Model
 {
@@ -14,29 +15,43 @@ class Category extends Model
         'slug',
         'description',
         'parent_id',
+        'department_id', // ✅ Add this so it can be mass-assigned
         'is_active',
     ];
 
-    // Optional: relationship for subcategories
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($category) {
+            // Auto-generate slug from name if not manually provided
+            if (empty($category->slug)) {
+                $category->slug = Str::slug($category->name);
+            }
+        });
+    }
+
+    // Parent category relationship
     public function parent()
     {
         return $this->belongsTo(Category::class, 'parent_id');
     }
 
+    // Subcategories relationship
     public function children()
     {
         return $this->hasMany(Category::class, 'parent_id');
     }
 
+    // Products under this category
     public function products()
     {
         return $this->hasMany(Product::class);
     }
 
+    // Associated department
     public function department()
     {
         return $this->belongsTo(Department::class);
     }
-
-
 }

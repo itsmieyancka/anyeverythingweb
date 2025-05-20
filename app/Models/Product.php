@@ -43,6 +43,17 @@ class Product extends Model implements HasMedia
         return $this->belongsTo(Category::class);
     }
 
+    public function variationSets()
+    {
+        return $this->hasMany(ProductVariationSet::class);
+    }
+
+// Product.php
+    public function variationTypes()
+    {
+        return $this->hasMany(\App\Models\VariationType::class);
+    }
+
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('images')
@@ -56,7 +67,7 @@ class Product extends Model implements HasMedia
             ->width(150)
             ->height(150)
             ->sharpen(10)
-            ->nonQueued(); // generates immediately, remove to queue
+            ->nonQueued(); // generates immediately
 
         $this->addMediaConversion('small')
             ->width(400)
@@ -73,8 +84,16 @@ class Product extends Model implements HasMedia
             ->height(1200)
             ->sharpen(10);
     }
+
+    public function getRelations(): array
+    {
+        return [
+            \App\Filament\Resources\ProductResource\RelationManagers\VariationTypesRelationManager::class,
+        ];
+    }
+    public function variations()
+    {
+        return $this->hasMany(ProductVariation::class);
+    }
+
 }
-
-
-
-
