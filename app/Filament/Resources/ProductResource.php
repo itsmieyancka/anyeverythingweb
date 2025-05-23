@@ -54,6 +54,12 @@ class ProductResource extends Resource
                 ->relationship('vendor', 'name')
                 ->required()
                 ->visible(fn () => auth()->user()->hasRole('admin')), // only admins see this field
+
+            Select::make('category_id')
+                ->label('Category')
+                ->options(\App\Models\Category::pluck('name', 'id'))
+                ->required(),
+
         ]);
     }
 
