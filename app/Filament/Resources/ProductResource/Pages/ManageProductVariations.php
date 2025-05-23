@@ -2,81 +2,81 @@
 
 namespace App\Filament\Resources\ProductResource\Pages;
 
-use App\Filament\Resources\ProductResource;
-use Filament\Resources\Pages\Page; // Correct Page class
+use App\Models\VariationOption;
 use Filament\Forms;
-use Filament\Forms\Components\TextInput;
+use Filament\Resources\Pages\Page;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use App\Models\Product;
 use Filament\Notifications\Notification;
-use Illuminate\View\View;
 
 class ManageProductVariations extends Page implements Forms\Contracts\HasForms
 {
     use Forms\Concerns\InteractsWithForms;
 
-
-    public $product;
-    public $variations = [];
-
-    protected static string $resource = ProductResource::class;
+    protected static string $resource = \App\Filament\Resources\ProductResource::class;
 
     protected static string $view = 'filament.resources.product-resource.pages.manage-product-variations';
 
-    public static function getRoute(): string
+    public Product $record;
+
+    public array $variation_sets = [];
+
+    public function mount(Product $record): void
     {
-        return '/{record}/variations';
-    }
-
-    public function mount($record): void
-    {
-        $this->product = ProductResource::getModel()::findOrFail($record);
-
-        $this->variations = $this->product->variations()->get()->toArray();
-
+        $this->record = $record;
         $this->form->fill([
-            'variations' => $this->variations,
+            'variation_sets' => $record->variationSets->map(function ($set) {
+                return [
+                    'variation_option_ids' => $set->variation_option_ids,
+                    'price' => $set->price,
+                    'stock' => $set->stock,
+                ];
+            })->toArray(),
         ]);
     }
 
     protected function getFormSchema(): array
     {
         return [
-            Grid::make()->schema([
-                Repeater::make('variations')
-                    ->label('Product Variations')
-                    ->schema([
-                        TextInput::make('type')
-                            ->required()
-                            ->placeholder('Variation Type (e.g., Size, Color)'),
+            Repeater::make('variation_sets')
+                ->label('Variation Sets')
+                ->schema([
+                    Select::make('variation_option_ids')
+                        ->label('Options')
+                        ->multiple()
+                        ->options(VariationOption::pluck('value', 'id'))
+                        ->required(),
 
-                        TextInput::make('option')
-                            ->required()
-                            ->placeholder('Option (e.g., Large, Red)'),
-                    ])
-                    ->columns(2)
-                    ->createItemButtonLabel('Add Variation'),
-            ]),
+                    TextInput::make('price')
+                        ->label('Price')
+                        ->numeric()
+                        ->required(),
+
+                    TextInput::make('stock')
+                        ->label('Stock')
+                        ->numeric()
+                        ->required(),
+                ])
         ];
     }
 
-    public function submit(): void
+    public function save()
     {
-        $data = $this->form->getState();
+        $this->record->variationSets()->delete(); // Clear old sets
 
-        $this->product->variations()->delete();
-
-        foreach ($data['variations'] ?? [] as $variation) {
-            $this->product->variations()->create([
-                'type' => $variation['type'],
-                'option' => $variation['option'],
+        foreach ($this->variation_sets as $set) {
+            $this->record->variationSets()->create([
+                'variation_option_ids' => $set['variation_option_ids'],
+                'price' => $set['price'],
+                'stock' => $set['stock'],
             ]);
         }
 
         Notification::make()
-            ->title('Product variations updated successfully.')
+            ->title('Variations updated successfully!')
             ->success()
             ->send();
     }
-
 }

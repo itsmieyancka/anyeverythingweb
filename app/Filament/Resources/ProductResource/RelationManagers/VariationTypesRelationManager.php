@@ -33,7 +33,7 @@ class VariationTypesRelationManager extends RelationManager
             ]);
     }
 
-    protected function getRelationManagers(): array
+    public static function getRelations(): array
     {
         return [
             VariationOptionsRelationManager::class,

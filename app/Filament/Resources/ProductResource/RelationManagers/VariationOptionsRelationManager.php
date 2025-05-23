@@ -2,40 +2,36 @@
 
 namespace App\Filament\Resources\ProductResource\RelationManagers;
 
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Forms;
-use Filament\Tables;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
 
 class VariationOptionsRelationManager extends RelationManager
 {
-    protected static string $relationship = 'variationOptions'; // matches method in VariationType model
+protected static string $relationship = 'variationOptions';
 
-    protected static ?string $recordTitleAttribute = 'value';
+public function form(Form $form): Form
+{
+return $form->schema([
+TextInput::make('value')->required(),
+SpatieMediaLibraryFileUpload::make('image')
+->collection('variation-option-images')
+->label('Option Image')
+->image()
+->maxSize(1024),
+]);
+}
 
-    public function form(Forms\Form $form): Forms\Form
-    {
-        return $form->schema([
-            Forms\Components\TextInput::make('value')
-                ->required()
-                ->maxLength(255),
-        ]);
-    }
-
-    public function table(Tables\Table $table): Tables\Table
-    {
-        return $table
-            ->columns([
-                Tables\Columns\TextColumn::make('value')->label('Option Value'),
-            ])
-            ->headerActions([
-                Tables\Actions\CreateAction::make(),
-            ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
-            ]);
-    }
+public function table(Table $table): Table
+{
+return $table
+->columns([
+ImageColumn::make('image')->collection('variation-option-images'),
+TextColumn::make('value'),
+]);
+}
 }

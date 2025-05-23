@@ -31,8 +31,19 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
     public function vendor()
     {
         return $this->hasOne(Vendor::class);
+    }
+
+    /**
+     * Determine if the user can access the Filament admin panel.
+     *
+     * @return bool
+     */
+    public function canAccessFilament(): bool
+    {
+        return $this->hasAnyRole(['admin', 'vendor']);
     }
 }

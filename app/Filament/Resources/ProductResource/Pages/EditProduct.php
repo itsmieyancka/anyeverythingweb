@@ -13,12 +13,8 @@ class EditProduct extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('Manage Variations')
-                ->label('Manage Variations')
-                ->url(fn () => static::getResource()::getUrl('variations', ['record' => $this->record]))
-                ->icon('heroicon-o-adjustments-horizontal'),
+
         ];
     }
 }
-
 
