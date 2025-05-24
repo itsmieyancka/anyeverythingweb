@@ -2,21 +2,32 @@
 
 namespace App\Providers\Filament;
 
+use Filament\Panel;
+use Filament\PanelProvider;
+use Filament\Support\Colors\Color;
+use Filament\Pages\Dashboard;
+use Filament\Widgets\AccountWidget;
+use Filament\Widgets\FilamentInfoWidget;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages;
-use Filament\Panel;
-use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
-use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+
+// Pages
+use App\Filament\Admin\Pages\AdminReport;
+
+// Resources
+use App\Filament\Resources\UserResource;
+use App\Filament\Resources\CategoryResource;
+use App\Filament\Resources\DepartmentResource;
+use App\Filament\Resources\VendorResource;
+use App\Filament\Resources\ProductResource;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -30,15 +41,20 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
-            ->pages([
-                Pages\Dashboard::class,
+            ->resources([
+                UserResource::class,
+                CategoryResource::class,
+                DepartmentResource::class,
+                VendorResource::class,
+                ProductResource::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
+            ->pages([
+                Dashboard::class,
+                AdminReport::class,
+            ])
             ->widgets([
-                Widgets\AccountWidget::class,
-                Widgets\FilamentInfoWidget::class,
+                AccountWidget::class,
+                FilamentInfoWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -56,3 +72,6 @@ class AdminPanelProvider extends PanelProvider
             ]);
     }
 }
+
+
+

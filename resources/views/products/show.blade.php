@@ -107,6 +107,12 @@
                 <h1 class="text-3xl font-bold">{{ $product->name }}</h1>
                 <p class="text-gray-600">{{ $product->description }}</p>
 
+                @if ($product->vendor)
+                    <p class="text-sm text-gray-500 mt-1">
+                        Sold by: <strong>{{ $product->vendor->business_name ?? $product->vendor->name ?? 'Unknown Vendor' }}</strong>
+                    </p>
+                @endif
+
                 <p id="product-price" class="text-green-600 text-2xl font-semibold">
                     R{{ number_format($product->price, 2) }}
                 </p>

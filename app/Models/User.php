@@ -46,4 +46,16 @@ class User extends Authenticatable
     {
         return $this->hasAnyRole(['admin', 'vendor']);
     }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'vendor_id', 'id');
+    }
+
+    // In App\Models\User.php
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'user_id', 'id');
+    }
 }

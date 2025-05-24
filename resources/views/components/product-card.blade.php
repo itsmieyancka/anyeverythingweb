@@ -11,7 +11,12 @@
         <h3 class="text-lg font-semibold mb-1">{{ $product->name }}</h3>
 
         {{-- Product Price --}}
-        <p class="text-gray-700 font-medium mb-4">${{ number_format($product->price, 2) }}</p>
+        <p class="text-gray-700 font-medium mb-4">R{{ number_format($product->price, 2) }}</p>
+
+        {{-- Sold by --}}
+        <p class="text-sm text-gray-500 mb-2">
+            Sold by: <span class="font-medium">{{ $product->vendor->business_name ?? 'Unknown Vendor' }}</span>
+        </p>
 
         {{-- Variations (excluding Size) --}}
         @if($product->variationTypes->count())

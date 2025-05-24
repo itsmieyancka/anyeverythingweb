@@ -33,8 +33,7 @@ class CategoryResource extends Resource
                     ->required()
                     ->maxLength(255)
                     ->live(onBlur: true)
-                    ->afterStateUpdated(fn($state, callable $set) =>
-                    $set('slug', \Str::slug($state))
+                    ->afterStateUpdated(fn($state, callable $set) => $set('slug', \Str::slug($state))
                     ),
 
                 TextInput::make('slug')
@@ -96,5 +95,10 @@ class CategoryResource extends Resource
             'create' => Pages\CreateCategory::route('/create'),
             'edit' => Pages\EditCategory::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasRole('admin'); // Only admins see it
     }
 }

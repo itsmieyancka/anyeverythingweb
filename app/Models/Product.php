@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use App\Models\Vendor;
 
 class Product extends Model implements HasMedia
 {
@@ -36,7 +37,7 @@ class Product extends Model implements HasMedia
 
     public function vendor(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'vendor_id');
+        return $this->belongsTo(\App\Models\Vendor::class);
     }
 
     public function category(): BelongsTo

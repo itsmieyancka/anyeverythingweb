@@ -11,14 +11,19 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::with(['media', 'variationTypes.variationOptions'])->get();
+        $products = Product::with([
+            'media',
+            'vendor', // Load vendor for "Sold by"
+            'variationTypes.variationOptions'
+        ])->get();
+
         return view('products.index', compact('products'));
     }
 
     public function home()
     {
         $featuredProducts = Product::where('is_active', true)
-            ->with('media')
+            ->with(['media', 'vendor']) // Load vendor here too
             ->latest()
             ->take(8)
             ->get();
@@ -29,7 +34,10 @@ class ProductController extends Controller
     public function showCategory($slug)
     {
         $category = Category::where('slug', $slug)
-            ->with(['products.media'])
+            ->with([
+                'products.media',
+                'products.vendor', // Make sure vendor is included
+            ])
             ->firstOrFail();
 
         return view('category.show', compact('category'));
@@ -48,8 +56,13 @@ class ProductController extends Controller
 
     public function show(Product $product)
     {
-        // Eager load relationships for performance
-        $product->load(['media', 'variationSets.variationOptions.variationType', 'variationTypes.variationOptions']);
+        // Eager load everything needed
+        $product->load([
+            'media',
+            'vendor', // Include vendor here too
+            'variationSets.variationOptions.variationType',
+            'variationTypes.variationOptions'
+        ]);
 
         // Group variation options by variation type (e.g., Color => [Red, Blue])
         $variationGroups = [];
@@ -58,11 +71,10 @@ class ProductController extends Controller
             $variationGroups[$variationType->name] = $variationType->variationOptions->keyBy('id');
         }
 
-        // Prepare variationSets data for JavaScript (array of variation_option_ids, price, stock)
+        // Prepare variationSets data for JavaScript
         $variationSets = $product->variationSets->map(function ($set) {
-            $optionIds = collect($set->variation_option_ids);
-            $optionIds = collect($optionIds)
-                ->map(fn($id) => (int) $id)
+            $optionIds = collect($set->variation_option_ids)
+                ->map(fn($id) => (int)$id)
                 ->sort()
                 ->values()
                 ->toArray();
@@ -81,7 +93,6 @@ class ProductController extends Controller
             'variationSets' => $variationSets,
         ]);
     }
-
 
     public function create()
     {
@@ -106,5 +117,16 @@ class ProductController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function search(Request $request)
+    {
+        $query = $request->input('q');
+
+        $products = Product::where('name', 'LIKE', "%{$query}%")
+            ->with(['media', 'vendor']) // Load vendor here too
+            ->get();
+
+        return view('products.search', compact('products', 'query'));
     }
 }

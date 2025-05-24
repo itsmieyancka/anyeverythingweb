@@ -34,6 +34,12 @@ class AuthenticatedSessionController extends Controller
 
             $user = Auth::user();
 
+
+            if ($user->hasRole('admin')) {
+                // Redirect admins to Filament admin panel or /admin dashboard URL
+                return redirect('/admin');
+            }
+
             if ($user->hasRole('vendor')) {
                 return redirect()->intended('/vendor/dashboard');
             }

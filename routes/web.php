@@ -7,7 +7,7 @@ use App\Http\Controllers\VendorDashboardController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
-use App\Http\Coontrollers\PaymentController;
+use App\Http\Controllers\PaymentController;
 
 // ✅ Public Routes
 Route::get('/', [ProductController::class, 'home'])->name('home');
@@ -15,21 +15,13 @@ Route::get('/category/{slug}', [ProductController::class, 'showCategory'])->name
 Route::get('/departments', [ProductController::class, 'showDepartments'])->name('departments.index');
 Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
 Route::get('/vendor/products', [ProductController::class, 'index'])->name('vendor.products.index');
-Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
-Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
+Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add'); // removed duplicate
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::delete('/cart/remove/{key}', [CartController::class, 'remove'])->name('cart.remove');
+Route::get('/search', [ProductController::class, 'search'])->name('search');
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
 Route::post('/stripe/payment-intent', [PaymentController::class, 'createPaymentIntent'])->name('stripe.paymentIntent');
-
-Route::delete('/cart/remove/{key}', [\App\Http\Controllers\CartController::class, 'remove'])->name('cart.remove');
-
-
-Route::get('/user/dashboard', function () {
-    return view('user.dashboard');
-})->middleware(['auth'])->name('user.dashboard');
-
-
 
 // ✅ Public (read-only) access to all products (optional)
 Route::resource('products', ProductController::class)->only(['index']);
@@ -50,7 +42,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('products', ProductController::class)->except(['index', 'show']);
     });
 
-    // Profile management (shared by both users and vendors)
+    // ✅ Profile management (shared by both users and vendors)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

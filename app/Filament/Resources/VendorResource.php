@@ -36,8 +36,8 @@ class VendorResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name'),
-                TextColumn::make('email'),
+                TextColumn::make('business_name'),
+                TextColumn::make('address'),
                 TextColumn::make('phone'),
 
             ])
@@ -68,5 +68,11 @@ class VendorResource extends Resource
             'create' => Pages\CreateVendor::route('/create'),
             'edit' => Pages\EditVendor::route('/{record}/edit'),
         ];
+    }
+
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasRole('admin'); // Only admins see it
     }
 }

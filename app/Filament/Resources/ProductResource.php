@@ -53,7 +53,13 @@ class ProductResource extends Resource
             Select::make('vendor_id')
                 ->relationship('vendor', 'name')
                 ->required()
-                ->visible(fn () => auth()->user()->hasRole('admin')), // only admins see this field
+                ->visible(fn() => auth()->user()->hasRole('admin'))
+                ->default(fn() => auth()->id()),  // default current user for vendors (won't show to them)
+
+            Forms\Components\Hidden::make('vendor_id')
+                ->default(fn() => auth()->id())
+                ->visible(fn() => !auth()->user()->hasRole('admin')),
+
 
             Select::make('category_id')
                 ->label('Category')
@@ -117,4 +123,5 @@ class ProductResource extends Resource
         return $query;
     }
 }
+
 

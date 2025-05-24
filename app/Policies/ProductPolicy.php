@@ -20,7 +20,7 @@ class ProductPolicy
     public function create(User $user): bool
     {
         // Only admins can create products
-        return $user->hasRole('admin');
+        return $user->hasAnyRole(['admin', 'vendor']);
     }
 
     public function update(User $user, Product $product): bool
@@ -32,5 +32,16 @@ class ProductPolicy
     {
         // Only admins can delete products
         return $user->hasRole('admin');
+    }
+
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasAnyRole(['admin', 'vendor']);
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->hasAnyRole(['admin', 'vendor']);
     }
 }

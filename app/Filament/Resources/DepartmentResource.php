@@ -24,29 +24,29 @@ class DepartmentResource extends Resource
     {
         return $form
             ->schema([
-                    Forms\Components\TextInput::make('name')
-                        ->required()
-                        ->maxLength(100)
-                        ->live(onBlur: true)
-                        ->afterStateUpdated(function (string $operation, $state, callable $set) {
-                            if ($operation === 'create') {
-                                $set('slug', Str::slug($state));
-                            }
-                        }),
+                Forms\Components\TextInput::make('name')
+                    ->required()
+                    ->maxLength(100)
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(function (string $operation, $state, callable $set) {
+                        if ($operation === 'create') {
+                            $set('slug', Str::slug($state));
+                        }
+                    }),
 
-                    Forms\Components\TextInput::make('slug')
-                        ->required()
-                        ->maxLength(100)
-                        ->unique(ignoreRecord: true),
+                Forms\Components\TextInput::make('slug')
+                    ->required()
+                    ->maxLength(100)
+                    ->unique(ignoreRecord: true),
 
-                    Forms\Components\Textarea::make('description')
-                        ->rows(3)
-                        ->maxLength(255),
+                Forms\Components\Textarea::make('description')
+                    ->rows(3)
+                    ->maxLength(255),
 
-                    Forms\Components\Toggle::make('is_active')
-                        ->label('Active')
-                        ->default(true),
-                ]);
+                Forms\Components\Toggle::make('is_active')
+                    ->label('Active')
+                    ->default(true),
+            ]);
     }
 
     public static function table(Table $table): Table
@@ -57,7 +57,7 @@ class DepartmentResource extends Resource
                 ->sortable()
                 ->searchable(),
 
-                ])
+            ])
             ->filters([
                 //
             ])
@@ -85,5 +85,10 @@ class DepartmentResource extends Resource
             'create' => Pages\CreateDepartment::route('/create'),
             'edit' => Pages\EditDepartment::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasRole('admin'); // Only admins see it
     }
 }

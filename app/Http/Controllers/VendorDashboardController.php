@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class VendorDashboardController extends Controller
@@ -15,13 +16,23 @@ class VendorDashboardController extends Controller
         $orders = Order::whereHas('orderItems', function ($query) use ($vendorId) {
             $query->where('vendor_id', $vendorId);
         })
-            ->with(['orderItems' => function ($query) use ($vendorId) {
-                $query->where('vendor_id', $vendorId);
-            }, 'user']) // eager load customer info
+            ->with([
+                'orderItems' => function ($query) use ($vendorId) {
+                    $query->where('vendor_id', $vendorId)->with('product');
+                },
+                'user'
+            ])
+            ->latest()
             ->get();
 
-        return view('vendor.dashboard', compact('orders'));
+        // Fetch vendor's own products
+        $products = Product::where('vendor_id', $vendorId)
+            ->with(['media', 'vendor'])
+            ->latest()
+            ->get();
+
+
+        return view('vendor.dashboard', compact('orders', 'products'));
     }
 }
-
 
