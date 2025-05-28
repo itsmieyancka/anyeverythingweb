@@ -23,6 +23,7 @@ class Product extends Model implements HasMedia
         'description',
         'price',
         'stock',
+        'color',
         'is_active',
     ];
 
@@ -93,10 +94,4 @@ class Product extends Model implements HasMedia
             ->nonQueued();
     }
 
-    public function getRelations(): array
-    {
-        return [
-            \App\Filament\Resources\ProductResource\RelationManagers\VariationTypesRelationManager::class,
-        ];
-    }
 }

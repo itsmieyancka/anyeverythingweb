@@ -3,7 +3,13 @@
 namespace App\Providers;
 
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Gate;  // import Gate facade
+use Illuminate\Support\Facades\Gate;
+
+// Import your models and policies
+use App\Models\Product;
+use App\Policies\ProductPolicy;
+use App\Models\ProductVariationSet;
+use App\Policies\ProductVariationSetPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -13,8 +19,8 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        \App\Models\Product::class => \App\Policies\ProductPolicy::class,
-        // Add other model => policy mappings here
+        Product::class => ProductPolicy::class,
+        ProductVariationSet::class => ProductVariationSetPolicy::class,
     ];
 
     /**
@@ -26,13 +32,11 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        // Define a gate named 'accessAdmin' (or whatever you want)
+        // Optional gate (e.g., for restricting admin panel access)
         Gate::define('accessAdmin', function ($user) {
-            return $user->hasAnyRole(['admin', 'vendor']);  // Adjust this check based on how you store user roles
-             // Only admins can pass
-            // Or for admins + vendors:
-            // return in_array($user->role, ['admin', 'vendor']);
+            return $user->hasAnyRole(['admin', 'vendor']);
         });
     }
 }
+
 

@@ -73,11 +73,7 @@ class ProductController extends Controller
 
         // Prepare variationSets data for JavaScript
         $variationSets = $product->variationSets->map(function ($set) {
-            $optionIds = collect($set->variation_option_ids)
-                ->map(fn($id) => (int)$id)
-                ->sort()
-                ->values()
-                ->toArray();
+            $optionIds = $set->variationOptions->pluck('id')->sort()->values()->toArray();
 
             return [
                 'id' => $set->id,

@@ -17,13 +17,16 @@ class ProductVariationSetsRelationManager extends RelationManager
     {
         return $form->schema([
             Forms\Components\TextInput::make('price')
+                ->label('Price (ZAR)')
                 ->required()
                 ->numeric()
                 ->minValue(0),
+
             Forms\Components\TextInput::make('stock')
                 ->required()
                 ->numeric()
                 ->minValue(0),
+
             Forms\Components\MultiSelect::make('variation_option_ids')
                 ->label('Variation Options')
                 ->options(VariationOption::all()->pluck('value', 'id'))
@@ -37,7 +40,16 @@ class ProductVariationSetsRelationManager extends RelationManager
         return $table->columns([
             Tables\Columns\TextColumn::make('price')->money('ZAR', true),
             Tables\Columns\TextColumn::make('stock'),
-            Tables\Columns\TagsColumn::make('variationOptions.value')->label('Options'),
+            Tables\Columns\TagsColumn::make('variationOptions.value')
+                ->label('Variation Options'),
         ]);
+    }
+
+    // Hook to sync the many-to-many relationship after save
+    protected function afterSave(): void
+    {
+        $variationOptionIds = $this->form->getState()['variation_option_ids'] ?? [];
+
+        $this->record->variationOptions()->sync($variationOptionIds);
     }
 }

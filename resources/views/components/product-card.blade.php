@@ -32,10 +32,10 @@
                                     style="
                                         @if(strtolower($variationType->name) === 'color')
                                             background-color: {{ $option->value }};
-                                            color: transparent; /* hide text for color circles */
+                                            color: transparent;
                                         @else
-                                            background-color: #f3f4f6; /* light bg for text circles */
-                                            color: #111827; /* dark text */
+                                            background-color: #f3f4f6;
+                                            color: #111827;
                                         @endif
                                     "
                                 >
@@ -48,6 +48,18 @@
                     </div>
                 @endif
             @endforeach
+        @elseif($product->color)
+            {{-- Fallback color display if no variationTypes exist --}}
+            <div class="mb-2">
+                <h4 class="text-sm font-semibold mb-1">Color</h4>
+                <div class="flex gap-2 flex-wrap">
+                    <span
+                        class="w-6 h-6 rounded-full border-2 border-gray-300 cursor-default"
+                        title="{{ ucfirst($product->color) }}"
+                        style="background-color: {{ $product->color }};"
+                    ></span>
+                </div>
+            </div>
         @endif
     </div>
 </a>

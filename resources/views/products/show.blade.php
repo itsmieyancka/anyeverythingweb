@@ -113,165 +113,215 @@
                     </p>
                 @endif
 
+                {{-- Price --}}
                 <p id="product-price" class="text-green-600 text-2xl font-semibold">
-                    R{{ number_format($product->price, 2) }}
+                    @if(empty($variationGroups) || count($variationGroups) === 0)
+                        R{{ number_format($product->price, 2) }}
+                    @else
+                        R{{ number_format($variationSets[0]['price'] ?? $product->price, 2) }}
+                    @endif
                 </p>
 
+                {{-- Stock --}}
                 <p id="product-stock" class="text-sm text-gray-500">
-                    Stock: <span id="stock-count">{{ $product->stock ?? 'N/A' }}</span>
+                    Stock:
+                    <span id="stock-count">
+                        @if(empty($variationGroups) || count($variationGroups) === 0)
+                            {{ $product->stock ?? 'N/A' }}
+                        @else
+                            {{ collect($variationSets)->sum('stock') }}
+                        @endif
+                    </span>
                 </p>
+
+                {{-- Simple Product Color --}}
+                @if((empty($variationGroups) || count($variationGroups) === 0) && !empty($product->color))
+                    <div class="mb-4">
+                        <h4 class="text-sm font-semibold mb-1">Color</h4>
+                        <div class="flex gap-2 flex-wrap items-center">
+                            <span
+                                class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center text-xs"
+                                title="{{ ucfirst($product->color) }}"
+                                aria-label="Color: {{ ucfirst($product->color) }}"
+                                style="background-color: {{ $product->color }};"
+                            ></span>
+                            <span class="ml-2 text-xs text-gray-600">{{ ucfirst($product->color) }}</span>
+                        </div>
+                    </div>
+                @endif
 
                 {{-- Variations Form --}}
-                <form method="POST" action="{{ route('cart.add', $product) }}" id="add-to-cart-form">
-                    @csrf
+                @if(!empty($variationGroups) && count($variationGroups) > 0)
+                    <form method="POST" action="{{ route('cart.add', $product) }}" id="add-to-cart-form">
+                        @csrf
 
-                    @foreach ($variationGroups as $typeName => $options)
-                        <div class="mb-6">
-                            <h3 class="text-sm font-semibold mb-3">{{ $typeName }}</h3>
-                            <div class="variation-container">
-                                @foreach ($options as $option)
-                                    <div class="variation-option {{ strtolower($typeName) }}-option">
-                                        <input type="radio"
-                                               id="variation-{{ $typeName }}-{{ $option->id }}"
-                                               name="variation_option_ids[{{ $typeName }}]"
-                                               value="{{ $option->id }}"
-                                               class="variation-radio"
-                                               required
-                                               @if ($loop->first) checked @endif>
+                        @foreach ($variationGroups as $typeName => $options)
+                            <div class="mb-6">
+                                <h3 class="text-sm font-semibold mb-3">{{ $typeName }}</h3>
+                                <div class="variation-container">
+                                    @foreach ($options as $option)
+                                        <div class="variation-option {{ strtolower($typeName) }}-option">
+                                            <input type="radio"
+                                                   id="variation-{{ $typeName }}-{{ $option->id }}"
+                                                   name="variation_option_ids[{{ $typeName }}]"
+                                                   value="{{ $option->id }}"
+                                                   class="variation-radio"
+                                                   required
+                                                   @if ($loop->first) checked @endif>
 
-                                        <label for="variation-{{ $typeName }}-{{ $option->id }}"
-                                               class="variation-label"
-                                               data-type="{{ $typeName }}"
-                                               data-option-id="{{ $option->id }}"
-                                               @if(strtolower($typeName) === 'color')
-                                                   style="background-color: {{ $option->value }};"
-                                               title="{{ $option->value }}"
-                                            @endif
-                                        >
-                                            @if(strtolower($typeName) !== 'color')
-                                                {{ $option->value }}
-                                            @endif
-                                        </label>
-                                    </div>
-                                @endforeach
+                                            <label for="variation-{{ $typeName }}-{{ $option->id }}"
+                                                   class="variation-label"
+                                                   data-type="{{ $typeName }}"
+                                                   data-option-id="{{ $option->id }}"
+                                                   @if(strtolower($typeName) === 'color')
+                                                       style="background-color: {{ $option->value }};"
+                                                   title="{{ $option->value }}"
+                                                @endif
+                                            >
+                                                @if(strtolower($typeName) !== 'color')
+                                                    {{ $option->value }}
+                                                @endif
+                                            </label>
+                                        </div>
+                                    @endforeach
+                                </div>
                             </div>
-                        </div>
-                    @endforeach
+                        @endforeach
 
-                    <div class="flex space-x-4">
-                        <button type="submit"
-                                class="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                                id="add-to-cart-btn">
-                            Add to Cart
-                        </button>
-                        <a href="{{ route('products.index') }}"
-                           class="flex-1 sm:flex-none bg-gray-100 hover:bg-gray-200 text-gray-800 px-6 py-3 rounded-lg transition-all duration-200 text-center">
-                            Back to Products
-                        </a>
-                    </div>
-                </form>
-                <div id="add-to-cart-message" class="mt-3 text-green-600 font-semibold hidden"></div>
+                        <div class="flex space-x-4">
+                            <button type="submit"
+                                    class="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    id="add-to-cart-btn">
+                                Add to Cart
+                            </button>
+                            <a href="{{ route('products.index') }}"
+                               class="flex-1 sm:flex-none bg-gray-100 hover:bg-gray-200 text-gray-800 px-6 py-3 rounded-lg transition-all duration-200 text-center">
+                                Back to Products
+                            </a>
+                        </div>
+                    </form>
+                    <div id="add-to-cart-message" class="mt-3 text-green-600 font-semibold hidden"></div>
+                @else
+                    {{-- For simple products, show Add to Cart --}}
+                    <form method="POST" action="{{ route('cart.add', $product) }}" id="add-to-cart-form">
+                        @csrf
+                        <div class="flex space-x-4">
+                            <button type="submit"
+                                    class="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    id="add-to-cart-btn"
+                                    @if(($product->stock ?? 0) <= 0) disabled @endif>
+                                {{ ($product->stock ?? 0) > 0 ? 'Add to Cart' : 'Out of Stock' }}
+                            </button>
+                            <a href="{{ route('products.index') }}"
+                               class="flex-1 sm:flex-none bg-gray-100 hover:bg-gray-200 text-gray-800 px-6 py-3 rounded-lg transition-all duration-200 text-center">
+                                Back to Products
+                            </a>
+                        </div>
+                    </form>
+                    <div id="add-to-cart-message" class="mt-3 text-green-600 font-semibold hidden"></div>
+                @endif
             </div>
         </div>
     </div>
 
-    <script>
-        const variationSets = @json($variationSets);
+    @if(!empty($variationGroups) && count($variationGroups) > 0)
+        <script>
+            const variationSets = @json($variationSets);
 
-        function arraysEqual(a, b) {
-            if (a.length !== b.length) return false;
-            return [...a].sort().every((val, i) => val === [...b].sort()[i]);
-        }
+            function arraysEqual(a, b) {
+                if (a.length !== b.length) return false;
+                return [...a].sort().every((val, i) => val === [...b].sort()[i]);
+            }
 
-        function formatPrice(price) {
-            return `R${parseFloat(price).toFixed(2)}`;
-        }
+            function formatPrice(price) {
+                return `R${parseFloat(price).toFixed(2)}`;
+            }
 
-        function updateProductInfo() {
-            const selected = Array.from(document.querySelectorAll('input.variation-radio:checked'))
-                .map(i => parseInt(i.value))
-                .sort();
+            function updateProductInfo() {
+                const selected = Array.from(document.querySelectorAll('input.variation-radio:checked'))
+                    .map(i => parseInt(i.value))
+                    .sort();
 
-            const matchedSet = variationSets.find(set =>
-                arraysEqual(set.variation_option_ids, selected)
+                const matchedSet = variationSets.find(set =>
+                    arraysEqual(set.variation_option_ids, selected)
+                );
+
+                const priceEl = document.getElementById('product-price');
+                const stockEl = document.getElementById('stock-count');
+                const btn = document.getElementById('add-to-cart-btn');
+
+                if (matchedSet) {
+                    priceEl.textContent = formatPrice(matchedSet.price);
+                    stockEl.textContent = matchedSet.stock;
+
+                    const isOutOfStock = matchedSet.stock <= 0;
+                    btn.disabled = isOutOfStock;
+                    btn.textContent = isOutOfStock ? 'Out of Stock' : 'Add to Cart';
+                } else {
+                    priceEl.textContent = formatPrice({{ $product->price }});
+                    stockEl.textContent = 'N/A';
+                    btn.disabled = true;
+                    btn.textContent = 'Select Options';
+                }
+            }
+
+            // Add event listeners for variation changes
+            document.querySelectorAll('input.variation-radio').forEach(radio =>
+                radio.addEventListener('change', updateProductInfo)
             );
 
-            const priceEl = document.getElementById('product-price');
-            const stockEl = document.getElementById('stock-count');
-            const btn = document.getElementById('add-to-cart-btn');
+            document.addEventListener('DOMContentLoaded', () => {
+                updateProductInfo();
 
-            if (matchedSet) {
-                priceEl.textContent = formatPrice(matchedSet.price);
-                stockEl.textContent = matchedSet.stock;
+                const form = document.getElementById('add-to-cart-form');
+                const btn = document.getElementById('add-to-cart-btn');
+                const messageDiv = document.getElementById('add-to-cart-message');
 
-                const isOutOfStock = matchedSet.stock <= 0;
-                btn.disabled = isOutOfStock;
-                btn.textContent = isOutOfStock ? 'Out of Stock' : 'Add to Cart';
-            } else {
-                priceEl.textContent = formatPrice({{ $product->price }});
-                stockEl.textContent = 'N/A';
-                btn.disabled = true;
-                btn.textContent = 'Select Options';
-            }
-        }
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    btn.disabled = true;
+                    btn.textContent = 'Adding...';
+                    messageDiv.classList.add('hidden');
+                    messageDiv.textContent = '';
 
-        // Add event listeners for variation changes
-        document.querySelectorAll('input.variation-radio').forEach(radio =>
-            radio.addEventListener('change', updateProductInfo)
-        );
+                    const formData = new FormData(form);
 
-        document.addEventListener('DOMContentLoaded', () => {
-            updateProductInfo();
+                    try {
+                        const response = await fetch(form.action, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'Accept': 'application/json',
+                            },
+                            body: formData,
+                        });
 
-            const form = document.getElementById('add-to-cart-form');
-            const btn = document.getElementById('add-to-cart-btn');
-            const messageDiv = document.getElementById('add-to-cart-message');
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
 
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                btn.disabled = true;
-                btn.textContent = 'Adding...';
-                messageDiv.classList.add('hidden');
-                messageDiv.textContent = '';
+                        const data = await response.json();
 
-                const formData = new FormData(form);
+                        // Show success message
+                        messageDiv.textContent = 'Product added to cart!';
+                        messageDiv.classList.remove('hidden');
 
-                try {
-                    const response = await fetch(form.action, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                            'Accept': 'application/json',
-                        },
-                        body: formData,
-                    });
-
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
+                        // Optional: update cart count badge if you have one
+                        const cartCountBadge = document.getElementById('cart-count-badge');
+                        if (cartCountBadge && data.cartCount !== undefined) {
+                            cartCountBadge.textContent = data.cartCount;
+                        }
+                        btn.textContent = 'Add to Cart';
+                        btn.disabled = false;
+                    } catch (error) {
+                        console.error('Error adding to cart:', error);
+                        messageDiv.textContent = 'Failed to add to cart. Please try again.';
+                        messageDiv.classList.remove('hidden');
+                        btn.textContent = 'Add to Cart';
+                        btn.disabled = false;
                     }
-
-                    const data = await response.json();
-
-                    // Show success message
-                    messageDiv.textContent = 'Product added to cart!';
-                    messageDiv.classList.remove('hidden');
-
-                    // Optional: update cart count badge if you have one
-                    const cartCountBadge = document.getElementById('cart-count-badge');
-                    if (cartCountBadge && data.cartCount !== undefined) {
-                        cartCountBadge.textContent = data.cartCount;
-                    }
-
-                    btn.textContent = 'Add to Cart';
-                    btn.disabled = false;
-                } catch (error) {
-                    console.error('Error adding to cart:', error);
-                    messageDiv.textContent = 'Failed to add to cart. Please try again.';
-                    messageDiv.classList.remove('hidden');
-                    btn.textContent = 'Add to Cart';
-                    btn.disabled = false;
-                }
+                });
             });
-        });
-    </script>
+        </script>
+    @endif
 @endsection
