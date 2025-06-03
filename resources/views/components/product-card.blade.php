@@ -61,5 +61,18 @@
                 </div>
             </div>
         @endif
+
+        {{-- Average Rating --}}
+        @if ($product->ratings->count())
+            <div class="flex items-center space-x-1 mt-2">
+                <div class="rating rating-sm">
+                    @for ($i = 1; $i <= 5; $i++)
+                        <input type="radio" disabled class="mask mask-star-2 bg-green-500"
+                            {{ round($product->averageRating()) == $i ? 'checked' : '' }} />
+                    @endfor
+                </div>
+                <span class="text-sm text-gray-500">({{ $product->ratings->count() }})</span>
+            </div>
+        @endif
     </div>
 </a>

@@ -94,4 +94,15 @@ class Product extends Model implements HasMedia
             ->nonQueued();
     }
 
+    public function ratings()
+    {
+        return $this->hasMany(ProductRating::class);
+    }
+
+    public function averageRating()
+    {
+        return $this->ratings()->avg('rating') ?? 0;
+    }
 }
+
+// app/Models/Product.php

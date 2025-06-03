@@ -13,7 +13,7 @@ class ProductController extends Controller
     {
         $products = Product::with([
             'media',
-            'vendor', // Load vendor for "Sold by"
+            'vendor',
             'variationTypes.variationOptions'
         ])->get();
 
@@ -23,7 +23,7 @@ class ProductController extends Controller
     public function home()
     {
         $featuredProducts = Product::where('is_active', true)
-            ->with(['media', 'vendor']) // Load vendor here too
+            ->with(['media', 'vendor'])
             ->latest()
             ->take(8)
             ->get();
@@ -36,7 +36,7 @@ class ProductController extends Controller
         $category = Category::where('slug', $slug)
             ->with([
                 'products.media',
-                'products.vendor', // Make sure vendor is included
+                'products.vendor',
             ])
             ->firstOrFail();
 
@@ -56,22 +56,19 @@ class ProductController extends Controller
 
     public function show(Product $product)
     {
-        // Eager load everything needed
         $product->load([
             'media',
-            'vendor', // Include vendor here too
+            'vendor',
             'variationSets.variationOptions.variationType',
-            'variationTypes.variationOptions'
+            'variationTypes.variationOptions',
+            'ratings.user', // ✅ Load reviews and their authors
         ]);
 
-        // Group variation options by variation type (e.g., Color => [Red, Blue])
         $variationGroups = [];
-
         foreach ($product->variationTypes as $variationType) {
             $variationGroups[$variationType->name] = $variationType->variationOptions->keyBy('id');
         }
 
-        // Prepare variationSets data for JavaScript
         $variationSets = $product->variationSets->map(function ($set) {
             $optionIds = $set->variationOptions->pluck('id')->sort()->values()->toArray();
 
@@ -83,10 +80,17 @@ class ProductController extends Controller
             ];
         })->values()->toArray();
 
+        // 👇 Optional: get user's own rating if logged in
+        $userRating = null;
+        if (auth()->check()) {
+            $userRating = $product->ratings->where('user_id', auth()->id())->first();
+        }
+
         return view('products.show', [
             'product' => $product,
             'variationGroups' => $variationGroups,
             'variationSets' => $variationSets,
+            'userRating' => $userRating,
         ]);
     }
 
@@ -120,7 +124,7 @@ class ProductController extends Controller
         $query = $request->input('q');
 
         $products = Product::where('name', 'LIKE', "%{$query}%")
-            ->with(['media', 'vendor']) // Load vendor here too
+            ->with(['media', 'vendor'])
             ->get();
 
         return view('products.search', compact('products', 'query'));

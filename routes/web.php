@@ -8,6 +8,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ProductRatingController;
 
 // ✅ Public Routes
 Route::get('/', [ProductController::class, 'home'])->name('home');
@@ -22,6 +23,10 @@ Route::get('/search', [ProductController::class, 'search'])->name('search');
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
 Route::post('/stripe/payment-intent', [PaymentController::class, 'createPaymentIntent'])->name('stripe.paymentIntent');
+Route::post('/ratings', [ProductRatingController::class, 'store'])->name('ratings.store')->middleware('auth');
+Route::post('/checkout/confirm', [CheckoutController::class, 'confirm'])->name('checkout.confirm');
+
+
 
 // ✅ Public (read-only) access to all products (optional)
 Route::resource('products', ProductController::class)->only(['index']);
