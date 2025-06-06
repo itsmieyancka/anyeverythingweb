@@ -2,10 +2,12 @@
 
 namespace App\Providers;
 
-use App\Http\Responses\LoginResponse;
-use Filament\Http\Responses\Auth\Contracts\LoginResponse as FilamentLoginResponse;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
+use Livewire\Livewire;
+use App\Http\Livewire\TeamChat;
+use App\Http\Responses\LoginResponse;
+use Filament\Http\Responses\Auth\Contracts\LoginResponse as FilamentLoginResponse;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,8 +22,11 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot()
+    public function boot(): void
     {
         Schema::defaultStringLength(125);
+
+        // 🔧 Manually register the Livewire component
+        Livewire::component('team-chat', TeamChat::class);
     }
 }

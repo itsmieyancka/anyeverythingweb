@@ -1,4 +1,3 @@
-{{-- resources/views/departments/index.blade.php --}}
 @extends('layouts.app')
 
 @section('content')
@@ -26,7 +25,7 @@
                 @if($department->categories->count())
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         @foreach ($department->categories as $category)
-                            <a href="{{ route('category.show', $category->slug) }}" class="block border rounded-xl p-4 hover:shadow-md bg-white">
+                            <a href="{{ route('categories.show', $category->slug) }}" class="block border rounded-xl p-4 hover:shadow-md bg-white">
                                 <h3 class="text-lg font-bold">{{ $category->name }}</h3>
                                 <p class="text-sm text-gray-600">{{ $category->description }}</p>
                             </a>

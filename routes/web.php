@@ -9,10 +9,11 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductRatingController;
+use App\Models\Category;
 
 // ✅ Public Routes
 Route::get('/', [ProductController::class, 'home'])->name('home');
-Route::get('/category/{slug}', [ProductController::class, 'showCategory'])->name('category.show');
+Route::get('/categories/{slug}', [ProductController::class, 'showCategory'])->name('categories.show');
 Route::get('/departments', [ProductController::class, 'showDepartments'])->name('departments.index');
 Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
 Route::get('/vendor/products', [ProductController::class, 'index'])->name('vendor.products.index');
@@ -25,6 +26,10 @@ Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout
 Route::post('/stripe/payment-intent', [PaymentController::class, 'createPaymentIntent'])->name('stripe.paymentIntent');
 Route::post('/ratings', [ProductRatingController::class, 'store'])->name('ratings.store')->middleware('auth');
 Route::post('/checkout/confirm', [CheckoutController::class, 'confirm'])->name('checkout.confirm');
+Route::get('/departments', [ProductController::class, 'showDepartments'])->name('departments.index');
+Route::get('/categories/{slug}', [ProductController::class, 'showCategory'])->name('categories.show');
+Route::get('/categories', [ProductController::class, 'indexCategories'])->name('categories.index');
+Route::get('/order/confirmed/{order}', [CheckoutController::class, 'confirmed'])->name('order.confirmed');
 
 
 

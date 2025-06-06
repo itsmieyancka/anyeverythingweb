@@ -25,10 +25,27 @@ class ProductController extends Controller
         $featuredProducts = Product::where('is_active', true)
             ->with(['media', 'vendor'])
             ->latest()
-            ->take(8)
+            ->take(4)
             ->get();
 
-        return view('home', compact('featuredProducts'));
+        $featuredIds = $featuredProducts->pluck('id');
+
+        $bestRatedProducts = Product::where('is_active', true)
+            ->whereNotIn('id', $featuredIds)
+            ->whereHas('ratings') // ✅ Only include rated products
+            ->with(['media', 'vendor', 'ratings'])
+            ->withAvg('ratings', 'rating')
+            ->orderByDesc('ratings_avg_rating')
+            ->take(4)
+            ->get();
+
+        $departments = Department::where('is_active', true)->get();
+        $categories = Category::where('is_active', 1)->get();
+
+
+        return view('home', compact('featuredProducts', 'bestRatedProducts', 'departments', 'categories'));
+
+
     }
 
     public function showCategory($slug)
@@ -40,7 +57,7 @@ class ProductController extends Controller
             ])
             ->firstOrFail();
 
-        return view('category.show', compact('category'));
+        return view('categories.show', compact('category'));
     }
 
     public function showDepartments()
@@ -127,6 +144,42 @@ class ProductController extends Controller
             ->with(['media', 'vendor'])
             ->get();
 
+        $departments = Department::where('is_active', true)->get();
+        $categories = Category::where('is_active', true)->get();
+
         return view('products.search', compact('products', 'query'));
+
     }
+
+    public function showCategories(Request $request)
+    {
+        $filterSlug = $request->query('filter');
+
+        if ($filterSlug) {
+            $category = Category::where('slug', $filterSlug)
+                ->with(['products.media', 'products.vendor'])
+                ->firstOrFail();
+
+            return view('categories.index', [
+                'categories' => $category,
+            ]);
+        }
+
+        $categories = Category::where('is_active', true)->get();
+
+        return view('categories.index', [
+            'categories' => null,
+            'categories' => $categories,
+        ]);
+    }
+
+    // Show all categories list
+    public function indexCategories()
+    {
+        $categories = Category::where('is_active', true)->get();
+
+        return view('categories.index', compact('categories'));
+    }
+
+
 }

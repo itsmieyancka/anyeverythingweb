@@ -130,11 +130,22 @@
                 <a href="{{ route('login') }}" class="btn btn-ghost btn-sm normal-case">Login</a>
                 <a href="{{ route('register') }}" class="btn btn-primary btn-sm normal-case">Register</a>
             @else
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="btn btn-ghost btn-sm normal-case">Logout</button>
-                </form>
+                <div class="dropdown dropdown-end">
+                    <label tabindex="0" class="btn btn-ghost btn-sm normal-case">
+                        {{ Auth::user()->name }}
+                    </label>
+                    <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+                        <li><a href="{{ route('profile.edit') }}">Profile</a></li>
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="w-full text-left">Logout</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
             @endguest
+
         </div>
     </div>
 
@@ -150,12 +161,39 @@
     <!-- Page Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         @yield('content')
-
-
-            </div>
-        </div>
     </main>
+
 </div>
+
+
+
+
+
+
+<footer class="footer sm:footer-horizontal bg-neutral text-neutral-content p-10">
+    <nav>
+        <h6 class="footer-title">Services</h6>
+        <a class="link link-hover">Branding</a>
+        <a class="link link-hover">Design</a>
+        <a class="link link-hover">Marketing</a>
+        <a class="link link-hover">Advertisement</a>
+    </nav>
+    <nav>
+        <h6 class="footer-title">Company</h6>
+        <a class="link link-hover">About us</a>
+        <a class="link link-hover">Contact</a>
+        <a class="link link-hover">Jobs</a>
+        <a class="link link-hover">Press kit</a>
+    </nav>
+    <nav>
+        <h6 class="footer-title">Legal</h6>
+        <a class="link link-hover">Terms of use</a>
+        <a class="link link-hover">Privacy policy</a>
+        <a class="link link-hover">Cookie policy</a>
+    </nav>
+</footer>
+
+
 
 @livewireScripts
 @yield('scripts')

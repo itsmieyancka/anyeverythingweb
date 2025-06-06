@@ -49,12 +49,17 @@ class AdminPanelProvider extends PanelProvider
                 ProductResource::class,
             ])
             ->pages([
-                Dashboard::class,
+                \App\Filament\Pages\Dashboard::class, // Your custom dashboard page
                 AdminReport::class,
+
+
             ])
             ->widgets([
                 AccountWidget::class,
                 FilamentInfoWidget::class,
+                \App\Filament\Widgets\StackedAreaSalesChart::class, // Add your stacked area chart widget here if you want it globally
+                 \App\Filament\Resources\AdminResource\Widgets\PlatformEarningsChart::class,
+                \App\Filament\Widgets\TeamChatWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -72,6 +77,3 @@ class AdminPanelProvider extends PanelProvider
             ]);
     }
 }
-
-
-

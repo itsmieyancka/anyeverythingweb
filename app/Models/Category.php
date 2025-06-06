@@ -15,7 +15,7 @@ class Category extends Model
         'slug',
         'description',
         'parent_id',
-        'department_id', // ✅ Add this so it can be mass-assigned
+        'department_id',
         'is_active',
     ];
 
@@ -31,7 +31,7 @@ class Category extends Model
         });
     }
 
-    // Parent category relationship
+    // Parent categories relationship
     public function parent()
     {
         return $this->belongsTo(Category::class, 'parent_id');
@@ -43,7 +43,7 @@ class Category extends Model
         return $this->hasMany(Category::class, 'parent_id');
     }
 
-    // Products under this category
+    // Products under this categories
     public function products()
     {
         return $this->hasMany(Product::class);

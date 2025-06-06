@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Vendor extends Model
 {
-protected $fillable = ['user_id', 'business_name', 'description', 'phone', 'address'];
+protected $fillable = ['user_id', 'business_name', 'description', 'phone', 'address','commission_rate'];
 
 public function user(): BelongsTo
 {
