@@ -2,14 +2,12 @@
 
 namespace App\Filament\Resources\ProductResource\RelationManagers;
 
-use App\Models\VariationOption;
 use Filament\Forms;
 use Filament\Forms\Components\MultiSelect;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Columns\BooleanColumn;
 use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Builder;
 
 class VariationSetsRelationManager extends RelationManager
 {
@@ -35,7 +33,8 @@ class VariationSetsRelationManager extends RelationManager
             MultiSelect::make('variationOptions')
                 ->relationship('variationOptions', 'value')
                 ->preload()
-                ->label('Options (e.g. Size, Color)'),
+                ->label('Options (e.g. Size, Color)')
+                ->required(),
         ]);
     }
 
@@ -45,9 +44,9 @@ class VariationSetsRelationManager extends RelationManager
             TextColumn::make('price')->money('ZAR'),
             TextColumn::make('stock'),
             BooleanColumn::make('is_active')->label('Active'),
-            TextColumn::make('variationOptions.value')
+            TextColumn::make('variationOptions')
                 ->label('Options')
-                ->separator(', '),
+                ->formatStateUsing(fn ($options) => collect($options)->pluck('value')->join(', ')),
         ]);
     }
 }

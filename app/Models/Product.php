@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use App\Models\Vendor;
 
 class Product extends Model implements HasMedia
 {
@@ -21,6 +23,7 @@ class Product extends Model implements HasMedia
         'description',
         'price',
         'stock',
+        'color',
         'is_active',
     ];
 
@@ -35,7 +38,7 @@ class Product extends Model implements HasMedia
 
     public function vendor(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'vendor_id');
+        return $this->belongsTo(\App\Models\Vendor::class);
     }
 
     public function category(): BelongsTo
@@ -43,57 +46,63 @@ class Product extends Model implements HasMedia
         return $this->belongsTo(Category::class);
     }
 
-    public function variationSets()
+    public function variationSets(): HasMany
     {
         return $this->hasMany(ProductVariationSet::class);
     }
 
-// Product.php
-    public function variationTypes()
+    public function variationTypes(): HasMany
     {
-        return $this->hasMany(\App\Models\VariationType::class);
+        return $this->hasMany(VariationType::class);
+
+    }
+
+    public function variations(): HasMany
+    {
+        return $this->hasMany(ProductVariation::class);
     }
 
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection('images')
-            ->useDisk('public')
-            ->singleFile();
+        $this->addMediaCollection('images')->useDisk('public');
     }
 
     public function registerMediaConversions(Media $media = null): void
     {
         $this->addMediaConversion('thumb')
-            ->width(150)
-            ->height(150)
+            ->width(500)
+            ->height(500)
             ->sharpen(10)
-            ->nonQueued(); // generates immediately
+            ->nonQueued();
 
         $this->addMediaConversion('small')
-            ->width(400)
-            ->height(400)
-            ->sharpen(10);
+            ->width(700)
+            ->height(700)
+            ->sharpen(10)
+            ->nonQueued();
 
         $this->addMediaConversion('medium')
-            ->width(800)
-            ->height(800)
-            ->sharpen(10);
+            ->width(1000)
+            ->height(1000)
+            ->sharpen(10)
+            ->nonQueued();
 
         $this->addMediaConversion('large')
-            ->width(1200)
-            ->height(1200)
-            ->sharpen(10);
+            ->width(1500)
+            ->height(1500)
+            ->sharpen(10)
+            ->nonQueued();
     }
 
-    public function getRelations(): array
+    public function ratings()
     {
-        return [
-            \App\Filament\Resources\ProductResource\RelationManagers\VariationTypesRelationManager::class,
-        ];
-    }
-    public function variations()
-    {
-        return $this->hasMany(ProductVariation::class);
+        return $this->hasMany(ProductRating::class);
     }
 
+    public function averageRating()
+    {
+        return $this->ratings()->avg('rating') ?? 0;
+    }
 }
+
+// app/Models/Product.php

@@ -1,10 +1,8 @@
+{{-- resources/views/filament/resources/product-resource/pages/manage-product-variations.blade.php --}}
 <x-filament::page>
-    <form wire:submit.prevent="submit" class="space-y-6">
-        {{ $this->form }}
+    {{ $this->form }}
 
-        <x-filament::button type="submit">
-            Save Variations
-        </x-filament::button>
-    </form>
+    <x-filament::button wire:click="save">
+        Save Variations
+    </x-filament::button>
 </x-filament::page>
-

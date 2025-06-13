@@ -10,23 +10,18 @@ class VariationTypesSeeder extends Seeder
 {
     public function run()
     {
-        // Get all existing products
         $products = Product::all();
 
         foreach ($products as $product) {
-            // Add sample variation types for each product, if none exist yet
-            if ($product->variationTypes()->count() === 0) {
-                VariationType::create([
-                    'product_id' => $product->id,
-                    'name' => 'Size',
-                ]);
+            VariationType::updateOrCreate(
+                ['product_id' => $product->id, 'name' => 'Size'],
+                ['created_at' => now(), 'updated_at' => now()]
+            );
 
-                VariationType::create([
-                    'product_id' => $product->id,
-                    'name' => 'Color',
-                ]);
-            }
+            VariationType::updateOrCreate(
+                ['product_id' => $product->id, 'name' => 'Color'],
+                ['created_at' => now(), 'updated_at' => now()]
+            );
         }
     }
 }
-

@@ -20,7 +20,7 @@ class CategorySeeder extends Seeder
         }
 
         foreach ($departments as $department) {
-            // Create parent category
+            // Create parent categories
             $parent = Category::create([
                 'department_id' => $department->id,
                 'name' => 'Electronics - ' . $department->name,
@@ -30,7 +30,7 @@ class CategorySeeder extends Seeder
                 'parent_id' => null,
             ]);
 
-            // Create child category under parent
+            // Create child categories under parent
             Category::create([
                 'department_id' => $department->id,
                 'name' => 'Mobile Phones - ' . $department->name,

@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class VariationOption extends Model
+class VariationOption extends Model implements HasMedia
 {
-    use HasFactory;
+    use InteractsWithMedia;
 
     protected $fillable = ['variation_type_id', 'value'];
 
@@ -18,6 +20,7 @@ class VariationOption extends Model
 
     public function variationSets()
     {
-        return $this->belongsToMany(ProductVariationSet::class);
+        return $this->belongsToMany(ProductVariationSet::class,
+        'product_variation_set_variation_option');
     }
 }
