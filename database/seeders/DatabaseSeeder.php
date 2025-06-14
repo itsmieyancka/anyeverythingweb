@@ -54,6 +54,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             DepartmentSeeder::class,
             CategorySeeder::class,
+            VendorSeeder::class,
             ProductSeeder::class,
             VariationTypesSeeder::class,
             VariationOptionsSeeder::class,
