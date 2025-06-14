@@ -6,52 +6,48 @@ use Illuminate\Database\Seeder;
 use App\Models\Product;
 use App\Models\Vendor;
 use App\Models\Category;
-use App\Models\User; // <--- Add this
+use Illuminate\Support\Str;
 
 class ProductSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
-        // Step 1: Find or create the user
-        $user = User::firstOrCreate(
-            ['email' => 'vendor@example.com'],
-            [
-                'name' => 'Test Vendor User',
-                'password' => bcrypt('password'),
-                'role' => 'vendor',
-            ]
-        );
+        // Make sure at least one vendor exists
+        $vendor = Vendor::first();
 
-        // Step 2: Find or create the vendor linked to that user
-        $vendor = Vendor::firstOrCreate(
-            ['user_id' => $user->id],
-            [
-                'business_name' => 'Test Vendor',
-                'description' => 'This is a test vendor',
-                'phone' => '0123456789',
-                'address' => '123 Test Street',
-                'commission_rate' => 10,
-            ]
-        );
+        if (!$vendor) {
+            // Optionally create a default vendor here or abort
+            $vendor = Vendor::create([
+                'name' => 'Default Vendor',
+                'slug' => 'default-vendor',
+                'email' => 'vendor@example.com',
+                'is_active' => true,
+                // Add any other required fields (e.g., password)
+            ]);
 
-        // Step 3: Find the category "Fashion"
-        $category = Category::where('slug', 'fashion')->first();
-
-        if ($vendor && $category) {
-            Product::updateOrCreate(
-                ['slug' => 'kaftan-dress'],
-                [
-                    'vendor_id' => $vendor->id,
-                    'category_id' => $category->id,
-                    'name' => 'Brand New Kaftan Dress',
-                    'description' => 'Flowy kaftan dress',
-                    'price' => 200.00,
-                    'stock' => 200,
-                    'is_active' => 1,
-                ]
-            );
-        } else {
-            $this->command->error('Vendor or category not found — Product not seeded.');
+            $this->command->info('Default vendor created with ID ' . $vendor->id);
         }
+
+        // Get a category to assign product to
+        $category = Category::first();
+
+        if (!$category) {
+            $this->command->warn('No categories found. Run CategorySeeder first.');
+            return;
+        }
+
+        // Use firstOrCreate to avoid duplicates on slug
+        Product::firstOrCreate(
+            ['slug' => 'kaftan-dress'],
+            [
+                'vendor_id' => $vendor->id,
+                'category_id' => $category->id,
+                'name' => 'Brand New Kaftan Dress',
+                'description' => 'Flowy kaftan dress',
+                'price' => 200,
+                'stock' => 200,
+                'is_active' => true,
+            ]
+        );
     }
 }

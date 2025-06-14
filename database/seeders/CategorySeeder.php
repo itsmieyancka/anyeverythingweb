@@ -44,7 +44,7 @@ class CategorySeeder extends Seeder
             );
         }
 
-        // Explicitly create Fashion category for the Fashion department
+        // Create Fashion category explicitly
         $fashionDepartment = Department::where('slug', 'fashion')->first();
 
         if ($fashionDepartment) {
@@ -63,3 +63,4 @@ class CategorySeeder extends Seeder
         }
     }
 }
+
