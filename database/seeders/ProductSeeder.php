@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use App\Models\Product;
 use App\Models\Vendor;
 use App\Models\Category;
+use Illuminate\Support\Str;
 
 class ProductSeeder extends Seeder
 {
@@ -15,20 +16,21 @@ class ProductSeeder extends Seeder
         $category = Category::first();
 
         if (!$vendor || !$category) {
-            $this->command->error('Missing vendor or category. Please run VendorSeeder and CategorySeeder first.');
+            $this->command->warn('Vendor or Category missing. Skipping product seeding.');
             return;
         }
 
-        Product::firstOrCreate([
-            'slug' => 'kaftan-dress',
-        ], [
-            'name' => 'Brand New Kaftan Dress',
-            'vendor_id' => $vendor->id,
-            'category_id' => $category->id,
-            'description' => 'Flowy kaftan dress',
-            'price' => 200,
-            'stock' => 200,
-            'is_active' => true,
-        ]);
+        Product::firstOrCreate(
+            ['slug' => 'kaftan-dress'],
+            [
+                'vendor_id' => $vendor->id,
+                'category_id' => $category->id,
+                'name' => 'Brand New Kaftan Dress',
+                'description' => 'Flowy kaftan dress',
+                'price' => 200,
+                'stock' => 200,
+                'is_active' => true,
+            ]
+        );
     }
 }
