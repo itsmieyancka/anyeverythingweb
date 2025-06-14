@@ -11,12 +11,14 @@ class CategorySeeder extends Seeder
 {
     public function run(): void
     {
-        // Loop through all departments
         $departments = Department::all();
 
-        foreach ($departments as $department) {
+        if ($departments->isEmpty()) {
+            $this->command->warn('No departments found. Skipping category seeding.');
+            return;
+        }
 
-            // Example categories per department (customize as needed)
+        foreach ($departments as $department) {
             $categories = [
                 [
                     'name' => 'Electronics - ' . $department->name,
@@ -28,14 +30,13 @@ class CategorySeeder extends Seeder
                     'description' => 'Accessories related to ' . $department->name,
                     'parent_id' => null,
                 ],
-                // Add more categories here if needed
             ];
 
             foreach ($categories as $cat) {
                 $slug = Str::slug($cat['name']);
 
                 Category::firstOrCreate(
-                    ['slug' => $slug], // search by slug to avoid duplicates
+                    ['slug' => $slug],
                     [
                         'department_id' => $department->id,
                         'name' => $cat['name'],
@@ -46,6 +47,9 @@ class CategorySeeder extends Seeder
                 );
             }
         }
+
+        $this->command->info('Categories seeded successfully.');
     }
 }
+
 

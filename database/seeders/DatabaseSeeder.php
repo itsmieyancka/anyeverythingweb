@@ -49,10 +49,9 @@ class DatabaseSeeder extends Seeder
         );
         $user->assignRole($userRole);
 
-
-        // 5. Call other seeders
+        // 5. Call other seeders in proper order
         $this->call([
-            DepartmentSeeder::class,
+            DepartmentSeeder::class,  // Make sure this exists and seeds departments
             CategorySeeder::class,
             VendorSeeder::class,
             ProductSeeder::class,
@@ -62,4 +61,3 @@ class DatabaseSeeder extends Seeder
         ]);
     }
 }
-

@@ -15,8 +15,13 @@ class ProductSeeder extends Seeder
         $vendor = Vendor::first();
         $category = Category::first();
 
-        if (!$vendor || !$category) {
-            $this->command->warn('Vendor or Category missing. Skipping product seeding.');
+        if (!$vendor) {
+            $this->command->warn('No vendor found. Skipping product seeding.');
+            return;
+        }
+
+        if (!$category) {
+            $this->command->warn('No category found. Skipping product seeding.');
             return;
         }
 
@@ -32,5 +37,7 @@ class ProductSeeder extends Seeder
                 'is_active' => true,
             ]
         );
+
+        $this->command->info('Product seeded successfully.');
     }
 }

@@ -17,7 +17,7 @@ class VendorSeeder extends Seeder
             return;
         }
 
-        Vendor::firstOrCreate(
+        $vendor = Vendor::firstOrCreate(
             ['user_id' => $user->id],
             [
                 'business_name' => 'Test Vendor',
@@ -27,5 +27,8 @@ class VendorSeeder extends Seeder
                 'commission_rate' => 10,
             ]
         );
+
+        $this->command->info("Vendor '{$vendor->business_name}' created or already exists.");
     }
 }
+
