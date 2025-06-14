@@ -12,42 +12,61 @@ class ProductSeeder extends Seeder
 {
     public function run(): void
     {
-        // Make sure at least one vendor exists
+        // Get the first vendor or create one if none exists
         $vendor = Vendor::first();
-
         if (!$vendor) {
-            // Optionally create a default vendor here or abort
             $vendor = Vendor::create([
                 'name' => 'Default Vendor',
                 'slug' => 'default-vendor',
                 'email' => 'vendor@example.com',
                 'is_active' => true,
-                // Add any other required fields (e.g., password)
+                // Add any other required fields here, e.g., password
             ]);
-
-            $this->command->info('Default vendor created with ID ' . $vendor->id);
         }
 
-        // Get a category to assign product to
-        $category = Category::first();
-
+        // Get a category to assign the product to - pick first active category
+        $category = Category::where('is_active', true)->first();
         if (!$category) {
-            $this->command->warn('No categories found. Run CategorySeeder first.');
+            // If no category exists, exit or create one here
+            $this->command->error('No categories found, please seed categories first!');
             return;
         }
 
-        // Use firstOrCreate to avoid duplicates on slug
-        Product::firstOrCreate(
-            ['slug' => 'kaftan-dress'],
+        // Example products - customize as needed
+        $products = [
             [
-                'vendor_id' => $vendor->id,
-                'category_id' => $category->id,
                 'name' => 'Brand New Kaftan Dress',
                 'description' => 'Flowy kaftan dress',
                 'price' => 200,
                 'stock' => 200,
                 'is_active' => true,
-            ]
-        );
+            ],
+            [
+                'name' => 'Wireless Bluetooth Headphones',
+                'description' => 'Noise cancelling headphones',
+                'price' => 1500,
+                'stock' => 50,
+                'is_active' => true,
+            ],
+            // Add more products here
+        ];
+
+        foreach ($products as $prod) {
+            $slug = Str::slug($prod['name']);
+
+            Product::firstOrCreate(
+                ['slug' => $slug], // prevent duplicates by slug
+                [
+                    'vendor_id' => $vendor->id,
+                    'category_id' => $category->id,
+                    'name' => $prod['name'],
+                    'description' => $prod['description'],
+                    'price' => $prod['price'],
+                    'stock' => $prod['stock'],
+                    'is_active' => $prod['is_active'],
+                ]
+            );
+        }
     }
 }
+
