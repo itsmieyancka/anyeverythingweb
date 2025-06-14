@@ -28,7 +28,7 @@ class VendorSeeder extends Seeder
             ]
         );
 
-        $this->command->info("Vendor '{$vendor->business_name}' created or already exists.");
+        $this->command->info("Vendor created with ID: {$vendor->id}");
     }
 }
 

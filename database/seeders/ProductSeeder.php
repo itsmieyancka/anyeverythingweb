@@ -6,7 +6,6 @@ use Illuminate\Database\Seeder;
 use App\Models\Product;
 use App\Models\Vendor;
 use App\Models\Category;
-use Illuminate\Support\Str;
 
 class ProductSeeder extends Seeder
 {
@@ -28,7 +27,7 @@ class ProductSeeder extends Seeder
         Product::firstOrCreate(
             ['slug' => 'kaftan-dress'],
             [
-                'vendor_id' => $vendor->id,
+                'vendor_id' => $vendor->id,  // use actual vendor id
                 'category_id' => $category->id,
                 'name' => 'Brand New Kaftan Dress',
                 'description' => 'Flowy kaftan dress',
