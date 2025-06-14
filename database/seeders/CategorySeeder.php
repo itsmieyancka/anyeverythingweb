@@ -11,7 +11,6 @@ class CategorySeeder extends Seeder
 {
     public function run(): void
     {
-        // Example departments (ensure these exist or change the logic to use real ones)
         $departments = Department::all();
 
         if ($departments->isEmpty()) {
@@ -20,7 +19,7 @@ class CategorySeeder extends Seeder
         }
 
         foreach ($departments as $department) {
-            // Create parent categories
+            // Create parent category example
             $parent = Category::create([
                 'department_id' => $department->id,
                 'name' => 'Electronics - ' . $department->name,
@@ -30,7 +29,7 @@ class CategorySeeder extends Seeder
                 'parent_id' => null,
             ]);
 
-            // Create child categories under parent
+            // Create child category example
             Category::create([
                 'department_id' => $department->id,
                 'name' => 'Mobile Phones - ' . $department->name,
@@ -39,6 +38,22 @@ class CategorySeeder extends Seeder
                 'is_active' => true,
                 'parent_id' => $parent->id,
             ]);
+        }
+
+        // Explicitly create Fashion category for the Fashion department
+        $fashionDepartment = Department::where('slug', 'fashion')->first();
+
+        if ($fashionDepartment) {
+            Category::firstOrCreate([
+                'department_id' => $fashionDepartment->id,
+                'name' => 'Fashion',
+                'slug' => 'fashion',
+                'description' => 'Clothing, shoes, and accessories.',
+                'is_active' => true,
+                'parent_id' => null,
+            ]);
+        } else {
+            $this->command->warn('Fashion department not found. Cannot create Fashion category.');
         }
     }
 }
