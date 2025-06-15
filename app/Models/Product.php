@@ -105,4 +105,4 @@ class Product extends Model implements HasMedia
     }
 }
 
-// app/Models/Product.php
+

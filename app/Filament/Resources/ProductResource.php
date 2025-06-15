@@ -6,6 +6,7 @@ use App\Filament\Resources\ProductResource\Pages;
 use App\Filament\Resources\ProductResource\RelationManagers\VariationTypesRelationManager;
 use App\Filament\Resources\ProductResource\RelationManagers\ProductVariationSetsRelationManager;
 use App\Models\Product;
+use App\Models\Vendor;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -60,12 +61,10 @@ class ProductResource extends Resource
                     'neutral' => 'Neutral',
                     'khaki' => 'Khaki',
                     'orange' => 'Orange',
-                    // Add more colors or load dynamically as needed
                 ])
                 ->visible(fn (callable $get) => empty($get('variation_attributes')))
                 ->helperText('Specify color for simple products without variations'),
 
-            // Variation Attributes (optional)
             Forms\Components\Repeater::make('variation_attributes')
                 ->label('Variation Attributes')
                 ->schema([
@@ -87,7 +86,6 @@ class ProductResource extends Resource
                 ->maxItems(5)
                 ->helperText('Leave empty if product has no variations'),
 
-            // Variation Sets (optional)
             Forms\Components\Repeater::make('variation_sets')
                 ->label('Variation Combinations')
                 ->schema([
@@ -109,7 +107,7 @@ class ProductResource extends Resource
                             foreach ($attributes as $attribute) {
                                 foreach ($attribute['options'] as $option) {
                                     $key = $attribute['name'] . ':' . $option['value'];
-                                    $options[$key] = $key; // Use composite keys
+                                    $options[$key] = $key;
                                 }
                             }
                             return $options;
@@ -128,14 +126,16 @@ class ProductResource extends Resource
                 ->enableReordering()
                 ->label('Product Images'),
 
+            // Vendor select for admins
             Forms\Components\Select::make('vendor_id')
                 ->relationship('vendor', 'business_name')
                 ->required()
                 ->visible(fn () => auth()->user()->hasRole('admin'))
                 ->default(fn () => auth()->id()),
 
+            // Hidden vendor_id for non-admins, correctly mapped to vendor id via user_id
             Forms\Components\Hidden::make('vendor_id')
-                ->default(fn () => auth()->id())
+                ->default(fn () => Vendor::where('user_id', auth()->id())->value('id'))
                 ->visible(fn () => !auth()->user()->hasRole('admin')),
 
             Forms\Components\Select::make('category_id')
@@ -188,11 +188,10 @@ class ProductResource extends Resource
         $query = parent::getEloquentQuery();
 
         if (!auth()->user()->hasRole('admin')) {
-            $query->where('vendor_id', auth()->id());
+            $vendorId = Vendor::where('user_id', auth()->id())->value('id');
+            $query->where('vendor_id', $vendorId);
         }
 
         return $query;
     }
 }
-
-
