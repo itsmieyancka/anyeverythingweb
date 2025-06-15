@@ -63,27 +63,35 @@
             <!-- Department Card -->
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
                 <h3 class="text-lg font-bold text-black text-center py-3 bg-gray-100 border-b">Shop by Department</h3>
-                <a href="{{ route('departments.index') }}" class="group block relative">
+                <div class="relative">
                     <img src="{{ asset('images/department.jpg') }}" alt="Departments"
-                         class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300" />
-                    <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
-                        <span class="text-white text-xl font-semibold">Explore Departments</span>
+                         class="w-full h-64 object-cover" />
+                    <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center space-y-2 p-4 text-center overflow-auto">
+                        @foreach($departments as $department)
+                            <a href="{{ route('departments.index') }}#{{ \Illuminate\Support\Str::slug($department->name) }}"
+                               class="text-white font-semibold hover:underline">
+                                {{ $department->name }}
+                            </a>
+                        @endforeach
                     </div>
-                </a>
+                </div>
             </div>
 
             <!-- Category Card -->
-            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden relative">
                 <h3 class="text-lg font-bold text-black text-center py-3 bg-gray-100 border-b">Shop by Category</h3>
-                <a href="{{ route('categories.index') }}" class="group block relative">
-                    <img src="{{ asset('images/categories.jpg') }}" alt="Categories"
-                         class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300" />
-                    <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
-                        <span class="text-white text-xl font-semibold">Explore Categories</span>
-                    </div>
-                </a>
+                <img src="{{ asset('images/categories.jpg') }}" alt="Categories"
+                     class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300" />
+                <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center p-4 space-y-2 overflow-auto">
+                    @foreach ($categories as $category)
+                        <a href="{{ route('categories.index') }}#{{ \Illuminate\Support\Str::slug($category->name) }}"
+                           class="text-white text-sm font-semibold hover:underline"
+                           style="white-space: nowrap;">
+                            {{ $category->name }}
+                        </a>
+                    @endforeach
+                </div>
             </div>
-
         </div>
     </div>
 
