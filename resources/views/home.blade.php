@@ -64,7 +64,7 @@
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
                 <h3 class="text-lg font-bold text-black text-center py-3 bg-gray-100 border-b">Shop by Department</h3>
                 <div class="relative">
-                    <img src="{{ asset('images/department.jpg') }}" alt="Departments"
+                    <img src="{{ asset('images/departmentss.jpg') }}" alt="Departments"
                          class="w-full h-64 object-cover" />
                     <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center space-y-2 p-4 text-center overflow-auto">
                         @foreach($departments as $department)
