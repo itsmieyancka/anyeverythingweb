@@ -53,6 +53,13 @@ class ProductResource extends Resource
                     'blue' => 'Blue',
                     'black' => 'Black',
                     'white' => 'White',
+                    'pink' => 'Pink',
+                    'yellow' => 'Yellow',
+                    'ivory' => 'Ivory',
+                    'silver' => 'Silver',
+                    'neutral' => 'Neutral',
+                    'khaki' => 'Khaki',
+                    'orange' => 'Orange',
                     // Add more colors or load dynamically as needed
                 ])
                 ->visible(fn (callable $get) => empty($get('variation_attributes')))
