@@ -63,7 +63,7 @@
 
             <!-- Department Card -->
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                <h3 class="text-lg font-bold text-center py-3 bg-gray-100 border-b">Shop by Department</h3>
+                <h3 class="text-lg font-bold text-black text-center py-3 bg-gray-100 border-b">Shop by Department</h3>
                 <div class="relative">
                     <img src="{{ asset('images/departmentss.jpg') }}" alt="Departments"
                          class="w-full h-64 object-cover" />
@@ -80,7 +80,7 @@
 
             <!-- Category Card -->
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                <h3 class="text-lg font-bold text-center py-3 bg-gray-100 border-b">Shop by Category</h3>
+                <h3 class="text-lg font-bold text-black text-center py-3 bg-gray-100 border-b">Shop by Category</h3>
                 <div class="relative">
                     <img src="{{ asset('images/categories.jpg') }}" alt="Categories"
                          class="w-full h-64 object-cover" />
@@ -103,7 +103,7 @@
 
     <!-- Featured Products Section -->
     <div class="container mx-auto px-4 py-6">
-        <h1 class="text-2xl font-bold mb-4">Featured Products</h1>
+        <h1 class="text-2xl font-bold text-black mb-4">Featured Products</h1>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             @foreach($featuredProducts as $product)
                 <x-product-card :product="$product" />
@@ -113,7 +113,7 @@
 
     <!-- Best Rated Products Section -->
     <div class="container mx-auto px-4 py-6">
-        <h1 class="text-2xl font-bold mb-4">Best Rated Products</h1>
+        <h1 class="text-2xl font-bold text-black mb-4">Best Rated Products</h1>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             @foreach($bestRatedProducts as $product)
                 <x-product-card :product="$product" />
