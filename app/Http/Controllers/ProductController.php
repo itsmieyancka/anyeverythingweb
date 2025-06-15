@@ -145,7 +145,10 @@ class ProductController extends Controller
             ->get();
 
         $departments = Department::where('is_active', true)->get();
-        $categories = Category::where('is_active', true)->get();
+        $categories = Category::where('is_active', 1)
+            ->whereNull('parent_id')
+            ->get();
+
 
         return view('products.search', compact('products', 'query'));
 
