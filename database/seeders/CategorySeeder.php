@@ -5,50 +5,54 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Department;
 use App\Models\Category;
-use Illuminate\Support\Str;
 
 class CategorySeeder extends Seeder
 {
     public function run(): void
     {
-        $departments = Department::all();
+        $categoriesPerDepartment = [
+            'Electronics' => [
+                ['name' => 'Mobile Phones', 'description' => 'Smartphones and mobile devices'],
+                ['name' => 'Laptops', 'description' => 'Notebooks and portable computers'],
+                ['name' => 'Accessories', 'description' => 'Chargers, cables, and more'],
+            ],
+            'Fashion' => [
+                ['name' => 'Men\'s Clothing', 'description' => 'Shirts, jeans, and more'],
+                ['name' => 'Women\'s Clothing', 'description' => 'Dresses, skirts, and tops'],
+                ['name' => 'Accessories', 'description' => 'Bags, belts, and jewelry'],
+            ],
+            'Home & Garden' => [
+                ['name' => 'Furniture', 'description' => 'Chairs, tables, and beds'],
+                ['name' => 'Kitchenware', 'description' => 'Utensils and appliances'],
+                ['name' => 'Garden Tools', 'description' => 'Shovels, rakes, and hoses'],
+            ],
+        ];
 
-        if ($departments->isEmpty()) {
-            $this->command->warn('No departments found. Skipping category seeding.');
-            return;
-        }
+        foreach ($categoriesPerDepartment as $departmentName => $categories) {
+            $department = Department::where('name', $departmentName)->first();
 
-        foreach ($departments as $department) {
-            $categories = [
-                [
-                    'name' => 'Electronics - ' . $department->name,
-                    'description' => 'All kinds of electronics in ' . $department->name,
-                    'parent_id' => null,
-                ],
-                [
-                    'name' => 'Accessories - ' . $department->name,
-                    'description' => 'Accessories related to ' . $department->name,
-                    'parent_id' => null,
-                ],
-            ];
+            if (!$department) {
+                $this->command->warn("Department '$departmentName' not found. Skipping.");
+                continue;
+            }
 
             foreach ($categories as $cat) {
-                $slug = Str::slug($cat['name']);
-
                 Category::firstOrCreate(
-                    ['slug' => $slug],
                     [
                         'department_id' => $department->id,
                         'name' => $cat['name'],
+                    ],
+                    [
+                        'slug' => \Str::slug($cat['name']),
                         'description' => $cat['description'],
+                        'parent_id' => null,
                         'is_active' => true,
-                        'parent_id' => $cat['parent_id'],
                     ]
                 );
             }
         }
 
-        $this->command->info('Categories seeded successfully.');
+        $this->command->info(' Categories seeded cleanly and logically.');
     }
 }
 
