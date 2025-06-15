@@ -63,22 +63,27 @@
 
             <!-- Department Card -->
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                <h3 class="text-lg font-bold text-black text-center py-3 bg-gray-100 border-b">Shop by Department</h3>
+                <h3 class="text-lg font-bold text-center py-3 bg-gray-100 border-b text-black">Shop by Department</h3>
                 <div class="relative">
                     <img src="{{ asset('images/departmentss.jpg') }}" alt="Departments"
                          class="w-full h-64 object-cover" />
-                    <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center space-y-2 p-4 text-center overflow-auto">
-                        @foreach ($categories->where('is_active', true)->unique('name') as $category)
-                            <a href="{{ route('categories.show', $category->slug) }}"
-                               class="text-white text-sm font-semibold hover:underline">
-                                {{ $category->name }}
-                            </a>
+                    <div class="absolute inset-0 bg-black bg-opacity-50 p-4 overflow-auto">
+                        @foreach ($departments as $department)
+                            <div class="mb-2">
+                                <h4 class="text-white font-semibold text-sm">{{ $department->name }}</h4>
+                                @foreach ($categories->where('department_id', $department->id) as $category)
+                                    <a href="{{ route('categories.show', $category->slug) }}"
+                                       class="block ml-2 text-white text-xs hover:underline">
+                                        {{ $category->name }}
+                                    </a>
+                                @endforeach
+                            </div>
                         @endforeach
                     </div>
                 </div>
             </div>
 
-            <!-- Category Card (Original Style) -->
+            <!-- Category Card -->
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
                 <h3 class="text-lg font-bold text-black text-center py-3 bg-gray-100 border-b">Shop by Category</h3>
                 <a href="{{ route('categories.index') }}" class="group block relative">
@@ -89,7 +94,9 @@
                     </div>
                 </a>
             </div>
+
         </div>
+    </div>
 
     <!-- Featured Products Section -->
     <div class="container mx-auto px-4 py-6">
