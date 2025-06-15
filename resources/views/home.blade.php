@@ -77,23 +77,22 @@
                     </div>
                 </div>
             </div>
-
             <!-- Category Card -->
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                <h3 class="text-lg font-bold text-black text-center py-3 bg-gray-100 border-b">Shop by Category</h3>
+                <h3 class="text-lg font-bold text-black text-center py-3 bg-gray-100 border-b">
+                    Shop by Category
+                </h3>
                 <div class="relative">
                     <img src="{{ asset('images/categories.jpg') }}" alt="Categories"
                          class="w-full h-64 object-cover" />
                     <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center space-y-2 p-4 text-center overflow-auto">
                         @foreach ($categories as $category)
-                            <a href="{{ route('categories.index', ['filter' => Str::slug($category->name)]) }}"
+                            <a href="{{ route('categories.show', $category->slug) }}"
                                class="text-white text-sm font-semibold hover:underline">
                                 {{ $category->name }}
                             </a>
                         @endforeach
-
                     </div>
-                </div>
             </div>
 
         </div>
