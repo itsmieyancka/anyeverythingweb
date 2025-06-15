@@ -78,33 +78,18 @@
                 </div>
             </div>
 
-            <pre>
-{{ print_r($categories->toArray(), true) }}
-</pre>
-
-
-            <!-- Category Card -->
+            <!-- Category Card (Original Style) -->
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                <h3 class="text-lg font-bold text-black text-center py-3 bg-gray-100 border-b">
-                    Shop by Category
-                </h3>
-                <div class="relative">
+                <h3 class="text-lg font-bold text-black text-center py-3 bg-gray-100 border-b">Shop by Category</h3>
+                <a href="{{ route('categories.index') }}" class="group block relative">
                     <img src="{{ asset('images/categories.jpg') }}" alt="Categories"
-                         class="w-full h-64 object-cover" />
-                    <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center space-y-2 p-4 text-center overflow-auto">
-                        @foreach ($categories as $category)
-                            <a href="{{ route('categories.show', $category->slug) }}"
-                               class="text-white text-sm font-semibold hover:underline">
-                                {{ $category->name }}
-                            </a>
-                        @endforeach
+                         class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300" />
+                    <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+                        <span class="text-white text-xl font-semibold">Explore Categories</span>
                     </div>
+                </a>
             </div>
-
         </div>
-    </div>
-
-
 
     <!-- Featured Products Section -->
     <div class="container mx-auto px-4 py-6">
