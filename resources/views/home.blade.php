@@ -60,27 +60,16 @@
     <!-- Shop by Department and Category Section -->
     <div class="container mx-auto px-4 py-10">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
             <!-- Department Card -->
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                <h3 class="text-lg font-bold text-center py-3 bg-gray-100 border-b text-black">Shop by Department</h3>
-                <div class="relative">
-                    <img src="{{ asset('images/departmentss.jpg') }}" alt="Departments"
-                         class="w-full h-64 object-cover" />
-                    <div class="absolute inset-0 bg-black bg-opacity-50 p-4 overflow-auto">
-                        @foreach ($departments as $department)
-                            <div class="mb-2">
-                                <h4 class="text-white font-semibold text-sm">{{ $department->name }}</h4>
-                                @foreach ($categories->where('department_id', $department->id) as $category)
-                                    <a href="{{ route('categories.show', $category->slug) }}"
-                                       class="block ml-2 text-white text-xs hover:underline">
-                                        {{ $category->name }}
-                                    </a>
-                                @endforeach
-                            </div>
-                        @endforeach
+                <h3 class="text-lg font-bold text-black text-center py-3 bg-gray-100 border-b">Shop by Department</h3>
+                <a href="{{ route('departments.index') }}" class="group block relative">
+                    <img src="{{ asset('images/department.jpg') }}" alt="Departments"
+                         class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300" />
+                    <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+                        <span class="text-white text-xl font-semibold">Explore Departments</span>
                     </div>
-                </div>
+                </a>
             </div>
 
             <!-- Category Card -->
