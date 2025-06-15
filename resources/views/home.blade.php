@@ -77,6 +77,12 @@
                     </div>
                 </div>
             </div>
+
+            <pre>
+{{ print_r($categories->toArray(), true) }}
+</pre>
+
+
             <!-- Category Card -->
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
                 <h3 class="text-lg font-bold text-black text-center py-3 bg-gray-100 border-b">
