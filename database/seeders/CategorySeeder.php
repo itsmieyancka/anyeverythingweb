@@ -2,58 +2,78 @@
 
 namespace Database\Seeders;
 
+namespace Database\Seeders;
+
 use Illuminate\Database\Seeder;
-use App\Models\Department;
 use App\Models\Category;
 
 class CategorySeeder extends Seeder
 {
     public function run(): void
     {
-        $categoriesPerDepartment = [
-            'Electronics' => [
-                ['name' => 'Mobile Phones', 'description' => 'Smartphones and mobile devices'],
-                ['name' => 'Laptops', 'description' => 'Notebooks and portable computers'],
-                ['name' => 'Accessories', 'description' => 'Chargers, cables, and more'],
-            ],
-            'Fashion' => [
-                ['name' => 'Men\'s Clothing', 'description' => 'Shirts, jeans, and more'],
-                ['name' => 'Women\'s Clothing', 'description' => 'Dresses, skirts, and tops'],
-                ['name' => 'Accessories', 'description' => 'Bags, belts, and jewelry'],
-            ],
-            'Home & Garden' => [
-                ['name' => 'Furniture', 'description' => 'Chairs, tables, and beds'],
-                ['name' => 'Kitchenware', 'description' => 'Utensils and appliances'],
-                ['name' => 'Garden Tools', 'description' => 'Shovels, rakes, and hoses'],
-            ],
-        ];
+        // Electronics
+        Category::updateOrCreate([
+            'slug' => 'mobile-phones',
+        ], [
+            'department_id' => 1,
+            'name' => 'Mobile Phones',
+            'description' => 'Smartphones, iPhones, and Androids',
+            'is_active' => true,
+            'parent_id' => null,
+        ]);
 
-        foreach ($categoriesPerDepartment as $departmentName => $categories) {
-            $department = Department::where('name', $departmentName)->first();
+        Category::updateOrCreate([
+            'slug' => 'laptops',
+        ], [
+            'department_id' => 1,
+            'name' => 'Laptops',
+            'description' => 'All kinds of laptops',
+            'is_active' => true,
+            'parent_id' => null,
+        ]);
 
-            if (!$department) {
-                $this->command->warn("Department '$departmentName' not found. Skipping.");
-                continue;
-            }
+        // Fashion
+        Category::updateOrCreate([
+            'slug' => 'mens-clothing',
+        ], [
+            'department_id' => 2,
+            'name' => "Men's Clothing",
+            'description' => 'Clothing for men',
+            'is_active' => true,
+            'parent_id' => null,
+        ]);
 
-            foreach ($categories as $cat) {
-                Category::firstOrCreate(
-                    [
-                        'department_id' => $department->id,
-                        'name' => $cat['name'],
-                    ],
-                    [
-                        'slug' => \Str::slug($cat['name']),
-                        'description' => $cat['description'],
-                        'parent_id' => null,
-                        'is_active' => true,
-                    ]
-                );
-            }
-        }
+        Category::updateOrCreate([
+            'slug' => 'womens-clothing',
+        ], [
+            'department_id' => 2,
+            'name' => "Women's Clothing",
+            'description' => 'Clothing for women',
+            'is_active' => true,
+            'parent_id' => null,
+        ]);
 
-        $this->command->info(' Categories seeded cleanly and logically.');
+        // Home & Garden
+        Category::updateOrCreate([
+            'slug' => 'furniture',
+        ], [
+            'department_id' => 3,
+            'name' => 'Furniture',
+            'description' => 'Chairs, tables, and more',
+            'is_active' => true,
+            'parent_id' => null,
+        ]);
+
+        Category::updateOrCreate([
+            'slug' => 'garden-tools',
+        ], [
+            'department_id' => 3,
+            'name' => 'Garden Tools',
+            'description' => 'Tools for outdoor and garden',
+            'is_active' => true,
+            'parent_id' => null,
+        ]);
+
+        $this->command->info('Clean and correct categories seeded.');
     }
 }
-
-
