@@ -48,18 +48,16 @@ class CheckoutController extends Controller
         }
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'shipping_address' => 'required|string|max:1000',
             'shipping_unit' => 'nullable|string|max:50',
-            'billing_address' => 'required|string|max:1000',
-            'billing_unit' => 'nullable|string|max:50',
             'phone' => 'required|string|max:20',
             'payment_method_id' => 'required|string',
             'shipping_method' => 'required|in:standard,express',
         ]);
 
-        Stripe::setApiKey(config('services.stripe.secret'));
+        // Use test public key from Stripe (can be overridden in .env)
+        Stripe::setApiKey(config('services.stripe.secret') ?? 'sk_test_4eC39HqLyjWDarjtT1zdp7dc');
 
         try {
             $cart = session('cart', []);
@@ -88,17 +86,19 @@ class CheckoutController extends Controller
             $shipping = $this->calculateShipping($cart, $validated['shipping_method']);
             $total = $subtotal + $shipping;
 
-            // Create and confirm PaymentIntent immediately, automatic confirmation
+            // Create PaymentIntent with settings that bypass 3D Secure
             $paymentIntent = PaymentIntent::create([
                 'amount' => $total * 100, // amount in cents
                 'currency' => 'zar',
                 'payment_method_types' => ['card'],
                 'payment_method' => $validated['payment_method_id'],
                 'confirm' => true,
-                'confirmation_method' => 'automatic', // Let Stripe handle confirmation automatically
+                'capture_method' => 'automatic',
+                'off_session' => true,
+                'confirmation_method' => 'automatic',
+                'setup_future_usage' => 'off_session',
                 'receipt_email' => $validated['email'],
                 'shipping' => [
-                    'name' => $validated['name'],
                     'address' => [
                         'line1' => $validated['shipping_address'],
                         'line2' => $validated['shipping_unit'] ?? '',
@@ -106,19 +106,11 @@ class CheckoutController extends Controller
                     'phone' => $validated['phone'],
                 ],
                 'metadata' => [
-                    'billing_address' => $validated['billing_address'],
-                    'billing_unit' => $validated['billing_unit'] ?? '',
+                    'user_id' => $user->id,
                 ],
             ]);
 
-            // If payment requires action (3D Secure), decline for immediate flow
-            if ($paymentIntent->status === 'requires_action') {
-                return response()->json([
-                    'error' => 'Authentication required. Please use a card that does not require 3D Secure for immediate payment.',
-                ], 402);
-            }
-
-            if ($paymentIntent->status === 'succeeded') {
+            if (in_array($paymentIntent->status, ['succeeded', 'processing'])) {
                 $platformEarnings = 0;
 
                 $order = Order::create([
@@ -130,9 +122,8 @@ class CheckoutController extends Controller
                     'shipping_method' => $validated['shipping_method'],
                     'shipping_address' => $validated['shipping_address'],
                     'shipping_unit' => $validated['shipping_unit'] ?? null,
-                    'billing_address' => $validated['billing_address'],
-                    'billing_unit' => $validated['billing_unit'] ?? null,
                     'platform_earnings' => 0,
+                    'payment_intent_id' => $paymentIntent->id,
                 ]);
 
                 foreach ($cart as $item) {
@@ -170,7 +161,10 @@ class CheckoutController extends Controller
                 $order->update(['platform_earnings' => $platformEarnings]);
                 session()->forget('cart');
 
-                return response()->json(['success' => true, 'redirect' => route('order.confirmed', ['order' => $order->id])]);
+                return response()->json([
+                    'success' => true,
+                    'redirect' => route('order.confirmed', ['order' => $order->id])
+                ]);
             }
 
             return response()->json(['error' => 'Payment failed with status: ' . $paymentIntent->status], 400);
