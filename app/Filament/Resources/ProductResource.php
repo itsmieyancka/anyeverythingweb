@@ -61,6 +61,7 @@ class ProductResource extends Resource
                     'neutral' => 'Neutral',
                     'khaki' => 'Khaki',
                     'orange' => 'Orange',
+                    'brown' => 'Brown',
                 ])
                 ->visible(fn (callable $get) => empty($get('variation_attributes')))
                 ->helperText('Specify color for simple products without variations'),
@@ -122,6 +123,7 @@ class ProductResource extends Resource
 
             SpatieMediaLibraryFileUpload::make('images')
                 ->collection('images')
+                ->disk('public')
                 ->multiple()
                 ->enableReordering()
                 ->label('Product Images'),
