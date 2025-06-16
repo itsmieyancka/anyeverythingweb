@@ -36,16 +36,47 @@
             <!-- Register as Vendor -->
             <div class="mb-4">
                 <label class="flex items-center">
-                    <input type="checkbox" name="register_as_vendor" id="register_as_vendor" value="1" class="form-checkbox text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                    <input
+                        type="checkbox"
+                        name="register_as_vendor"
+                        id="register_as_vendor"
+                        value="1"
+                        class="form-checkbox text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                        {{ old('register_as_vendor') ? 'checked' : '' }}
+                    >
                     <span class="ml-2 text-sm text-gray-700">Register as Vendor</span>
                 </label>
             </div>
 
             <!-- Business Name (conditional) -->
-            <div id="vendor-fields" class="mb-4 hidden">
+            <div id="vendor-fields" class="mb-4 {{ old('register_as_vendor') ? '' : 'hidden' }}">
                 <x-input-label for="business_name" :value="__('Business Name')" />
                 <x-text-input id="business_name" class="mt-1 block w-full" type="text" name="business_name" :value="old('business_name')" />
                 <x-input-error :messages="$errors->get('business_name')" class="mt-2" />
+
+                <!-- Vendor Policy Notice -->
+                <p class="text-sm text-gray-600 mt-2">
+                    By registering as a vendor, you agree to our <strong>Vendor Policy</strong>:
+                    A commission of <strong>10%</strong> is deducted from each product sale. This fee supports platform operations and maintenance.
+                </p>
+            </div>
+
+            <!-- Terms & Conditions -->
+            <div class="mb-4">
+                <label class="flex items-start gap-2">
+                    <input
+                        type="checkbox"
+                        name="terms"
+                        required
+                        class="form-checkbox text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded mt-1"
+                    >
+                    <span class="text-sm text-gray-700">
+                        I agree to the
+                        <a href="#" class="text-indigo-600 underline">Terms and Conditions</a>
+                        and understand the platform policies.
+                    </span>
+                </label>
+                <x-input-error :messages="$errors->get('terms')" class="mt-2" />
             </div>
 
             <!-- Submit -->
@@ -66,18 +97,16 @@
         document.addEventListener('DOMContentLoaded', function () {
             const checkbox = document.getElementById('register_as_vendor');
             const vendorFields = document.getElementById('vendor-fields');
+            const businessNameInput = document.getElementById('business_name');
 
             function toggleVendorFields() {
-                vendorFields.classList.toggle('hidden', !checkbox.checked);
+                const show = checkbox.checked;
+                vendorFields.classList.toggle('hidden', !show);
+                businessNameInput.required = show;
             }
 
             checkbox.addEventListener('change', toggleVendorFields);
-
-            // Ensure visibility on validation error
-            if (checkbox.checked || '{{ old('business_name') }}') {
-                checkbox.checked = true;
-                vendorFields.classList.remove('hidden');
-            }
+            toggleVendorFields(); // initialize
         });
     </script>
 </x-guest-layout>
