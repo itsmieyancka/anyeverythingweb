@@ -18,11 +18,8 @@ class CheckoutController extends Controller
     {
         $cart = session()->get('cart', []);
         $subtotal = collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']);
-
-        // Default shipping method is "standard"
         $shippingMethod = 'standard';
         $shipping = $this->calculateShipping($cart, $shippingMethod);
-
         $total = $subtotal + $shipping;
 
         return view('checkout', [
@@ -66,14 +63,12 @@ class CheckoutController extends Controller
 
         try {
             $cart = session('cart', []);
-
-            // Check stock levels before processing payment
             foreach ($cart as $item) {
                 if (!empty($item['variation_set_id'])) {
                     $variationSet = ProductVariationSet::find($item['variation_set_id']);
                     if (!$variationSet || $variationSet->stock < $item['quantity']) {
                         return response()->json([
-                            'error' => 'Insufficient stock for product: ' . ($item['product_name'] ?? 'Unknown product'),
+                            'error' => 'Insufficient stock for product: ' . ($item['product_name'] ?? 'Unknown'),
                             'product_id' => $item['product_id']
                         ], 422);
                     }
@@ -81,7 +76,7 @@ class CheckoutController extends Controller
                     $product = Product::find($item['product_id']);
                     if (!$product || $product->stock < $item['quantity']) {
                         return response()->json([
-                            'error' => 'Insufficient stock for product: ' . ($product->name ?? 'Unknown product'),
+                            'error' => 'Insufficient stock for product: ' . ($product->name ?? 'Unknown'),
                             'product_id' => $item['product_id']
                         ], 422);
                     }
@@ -92,10 +87,8 @@ class CheckoutController extends Controller
             $shipping = $this->calculateShipping($cart, $validated['shipping_method']);
             $total = $subtotal + $shipping;
 
-            $amount = $total * 100; // Convert to cents for Stripe
-
             $paymentIntent = PaymentIntent::create([
-                'amount' => $amount,
+                'amount' => $total * 100, // Stripe expects cents
                 'currency' => 'zar',
                 'payment_method_types' => ['card'],
                 'payment_method' => $validated['payment_method_id'],
@@ -155,7 +148,6 @@ class CheckoutController extends Controller
                         'variation_set_id' => $item['variation_set_id'] ?? null,
                     ]);
 
-                    // Reduce stock - with transaction safety
                     if (!empty($item['variation_set_id'])) {
                         $variationSet = ProductVariationSet::lockForUpdate()->find($item['variation_set_id']);
                         if ($variationSet) {
@@ -171,10 +163,7 @@ class CheckoutController extends Controller
                     }
                 }
 
-                $order->update([
-                    'platform_earnings' => $platformEarnings,
-                ]);
-
+                $order->update(['platform_earnings' => $platformEarnings]);
                 session()->forget('cart');
 
                 return response()->json(['success' => true, 'redirect' => route('order.confirmed', ['order' => $order->id])]);
@@ -191,6 +180,3 @@ class CheckoutController extends Controller
         return view('order.confirmed', compact('order'));
     }
 }
-
-
-

@@ -47,10 +47,6 @@
                         <label for="first_name" class="block font-medium">First Name</label>
                         <input type="text" id="first_name" name="first_name" value="{{ old('first_name', auth()->user()->first_name ?? '') }}" class="input input-bordered w-full mt-1" required>
                     </div>
-                    <div>
-                        <label for="last_name" class="block font-medium">Last Name</label>
-                        <input type="text" id="last_name" name="last_name" value="{{ old('last_name', auth()->user()->last_name ?? '') }}" class="input input-bordered w-full mt-1" required>
-                    </div>
                 </div>
                 <div class="mb-4">
                     <label for="address" class="block font-medium">Address</label>
