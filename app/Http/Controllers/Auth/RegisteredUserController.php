@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers\Auth;
-
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Vendor;
@@ -33,9 +32,10 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'business_name' => ['sometimes', 'string', 'max:255'],
+            'business_name' => ['sometimes', 'nullable', 'string', 'max:255'],
             'register_as_vendor' => ['sometimes', 'boolean'],
         ]);
+
 
         // Create the user with lowercase email
         $user = User::create([

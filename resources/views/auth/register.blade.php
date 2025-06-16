@@ -1,14 +1,4 @@
 <x-guest-layout>
-    @if ($errors->any())
-        <div class="mb-4 p-3 bg-red-100 text-red-700 rounded">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>- {{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
 
     <div class="max-w-md mx-auto mt-10 bg-white p-6 rounded-lg shadow-md">
         <h2 class="text-2xl font-semibold text-center mb-6">Create an Account</h2>
