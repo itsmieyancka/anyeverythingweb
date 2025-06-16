@@ -12,9 +12,6 @@
                 </li>
                 <li class="text-gray-700">Checkout</li>
                 <li>
-                    <a href="{{ route('shop.index') }}" class="ml-4 text-green-600 font-semibold hover:underline">
-                        &larr; Continue Shopping
-                    </a>
                 </li>
             </ol>
         </nav>
