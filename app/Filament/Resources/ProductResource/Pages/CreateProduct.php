@@ -3,11 +3,39 @@
 namespace App\Filament\Resources\ProductResource\Pages;
 
 use App\Filament\Resources\ProductResource;
+use App\Models\Vendor;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Support\Facades\Auth;
 
 class CreateProduct extends CreateRecord
 {
     protected static string $resource = ProductResource::class;
+
+    protected function handleRecordCreation(array $data): \App\Models\Product
+    {
+        // Get current logged-in user
+        $user = Auth::user();
+
+        // Get vendor linked to this user
+        $vendor = Vendor::where('user_id', $user->id)->first();
+
+        if (!$vendor) {
+            abort(404, 'Vendor record not found for current user.');
+        }
+
+        // Create product with vendor_id set correctly
+        return \App\Models\Product::create([
+            'vendor_id' => $vendor->id,
+            'category_id' => $data['category_id'],
+            'name' => $data['name'],
+            'slug' => $data['slug'] ?? null,
+            'description' => $data['description'] ?? '',
+            'price' => $data['price'] ?? 0,
+            'stock' => $data['stock'] ?? 0,
+            'color' => $data['color'] ?? null,
+            'is_active' => $data['is_active'] ?? true,
+        ]);
+    }
 
     protected function afterCreate(): void
     {
@@ -53,5 +81,3 @@ class CreateProduct extends CreateRecord
         }
     }
 }
-
-
