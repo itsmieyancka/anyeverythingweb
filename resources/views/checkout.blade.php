@@ -9,12 +9,12 @@
             @foreach($cart as $item)
                 <div class="flex justify-between py-2">
                     <div>
-                        {{ $item->quantity }} × {{ $item->product->name }}
+                        {{ $item['quantity'] }} × {{ $item['product']['name'] ?? 'No name' }}
                         @if($item->options)
                             <div class="text-sm text-gray-500">{{ $item->options }}</div>
                         @endif
                     </div>
-                    <div>R{{ number_format($item->price * $item->quantity, 2) }}</div>
+                    <div>R{{ number_format($item['price'] * $item['quantity'], 2) }}</div>
                 </div>
             @endforeach
         </div>
