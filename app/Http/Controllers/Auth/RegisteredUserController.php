@@ -28,39 +28,38 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Validate incoming request (remove 'lowercase' rule)
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            // Add vendor business_name validation if vendor registration selected
             'business_name' => ['sometimes', 'string', 'max:255'],
+            'register_as_vendor' => ['sometimes', 'boolean'],
         ]);
 
+        // Create the user with lowercase email
         $user = User::create([
             'name' => $request->name,
-            'email' => $request->email,
+            'email' => strtolower($request->email),
             'password' => Hash::make($request->password),
         ]);
 
-        if ($request->has('register_as_vendor')) {
+        // Assign roles and create vendor if applicable
+        if ($request->boolean('register_as_vendor')) {
             $user->assignRole('vendor');
 
-            // Create vendor record linked to this user
-            $vendor = Vendor::create([
+            Vendor::create([
                 'user_id' => $user->id,
                 'business_name' => $request->input('business_name', $user->name . "'s Store"),
             ]);
-
-            // OPTIONAL: you could store vendor id in session or do other logic here
         } else {
             $user->assignRole('user');
         }
 
         event(new Registered($user));
-
         Auth::login($user);
 
-        // Redirect to dashboard depending on role
+        // Redirect based on role
         if ($user->hasRole('vendor')) {
             return redirect()->route('vendor.dashboard');
         }
