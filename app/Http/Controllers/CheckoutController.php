@@ -31,6 +31,7 @@ class CheckoutController extends Controller
             'shipping' => $shipping,
             'shippingMethod' => $shippingMethod,
             'total' => $total,
+            'stripeKey' => config('services.stripe.key'),
         ]);
     }
 
@@ -65,6 +66,28 @@ class CheckoutController extends Controller
 
         try {
             $cart = session('cart', []);
+
+            // Check stock levels before processing payment
+            foreach ($cart as $item) {
+                if (!empty($item['variation_set_id'])) {
+                    $variationSet = ProductVariationSet::find($item['variation_set_id']);
+                    if (!$variationSet || $variationSet->stock < $item['quantity']) {
+                        return response()->json([
+                            'error' => 'Insufficient stock for product: ' . ($item['product_name'] ?? 'Unknown product'),
+                            'product_id' => $item['product_id']
+                        ], 422);
+                    }
+                } else {
+                    $product = Product::find($item['product_id']);
+                    if (!$product || $product->stock < $item['quantity']) {
+                        return response()->json([
+                            'error' => 'Insufficient stock for product: ' . ($product->name ?? 'Unknown product'),
+                            'product_id' => $item['product_id']
+                        ], 422);
+                    }
+                }
+            }
+
             $subtotal = collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']);
             $shipping = $this->calculateShipping($cart, $validated['shipping_method']);
             $total = $subtotal + $shipping;
@@ -109,7 +132,9 @@ class CheckoutController extends Controller
                     'total' => $total,
                     'shipping_method' => $validated['shipping_method'],
                     'shipping_address' => $validated['shipping_address'],
+                    'shipping_unit' => $validated['shipping_unit'] ?? null,
                     'billing_address' => $validated['billing_address'],
+                    'billing_unit' => $validated['billing_unit'] ?? null,
                     'platform_earnings' => 0,
                 ]);
 
@@ -127,17 +152,18 @@ class CheckoutController extends Controller
                         'quantity' => $item['quantity'],
                         'price' => $item['price'],
                         'status' => 'pending',
+                        'variation_set_id' => $item['variation_set_id'] ?? null,
                     ]);
 
-                    // Reduce stock
+                    // Reduce stock - with transaction safety
                     if (!empty($item['variation_set_id'])) {
-                        $variationSet = ProductVariationSet::find($item['variation_set_id']);
+                        $variationSet = ProductVariationSet::lockForUpdate()->find($item['variation_set_id']);
                         if ($variationSet) {
                             $variationSet->stock = max(0, $variationSet->stock - $item['quantity']);
                             $variationSet->save();
                         }
                     } else {
-                        $product = Product::find($item['product_id']);
+                        $product = Product::lockForUpdate()->find($item['product_id']);
                         if ($product) {
                             $product->stock = max(0, $product->stock - $item['quantity']);
                             $product->save();
@@ -165,5 +191,6 @@ class CheckoutController extends Controller
         return view('order.confirmed', compact('order'));
     }
 }
+
 
 
