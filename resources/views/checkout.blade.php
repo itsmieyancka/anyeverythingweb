@@ -10,16 +10,7 @@
                     <a href="{{ route('home') }}" class="hover:underline text-blue-600">Home</a>
                     <span>/</span>
                 </li>
-                <li>
-                    <a href="{{ route('shop.index') }}" class="hover:underline text-blue-600">Shop</a>
-                    <span>/</span>
-                </li>
                 <li class="text-gray-700">Checkout</li>
-                <li>
-                    <a href="{{ route('shop.index') }}" class="ml-4 text-green-600 font-semibold hover:underline">
-                        &larr; Continue Shopping
-                    </a>
-                </li>
             </ol>
         </nav>
 
