@@ -10,7 +10,7 @@
                 <div class="flex justify-between py-2">
                     <div>
                         {{ $item['quantity'] }} × {{ $item['product']['name'] ?? 'No name' }}
-                        @if($item->options)
+                        @if(!empty($item['options']))
                             <div class="text-sm text-gray-500">{{ $item->options }}</div>
                         @endif
                     </div>
