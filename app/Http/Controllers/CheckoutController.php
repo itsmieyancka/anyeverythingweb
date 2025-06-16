@@ -64,7 +64,7 @@ class CheckoutController extends Controller
 
         $cart = session('cart', []);
 
-        // Validate stock before payment
+        // Check stock before processing payment
         foreach ($cart as $item) {
             if (!empty($item['variation_set_id'])) {
                 $variationSet = ProductVariationSet::find($item['variation_set_id']);
@@ -86,7 +86,7 @@ class CheckoutController extends Controller
         Stripe::setApiKey(config('services.stripe.secret'));
 
         try {
-            $amount = $total * 100; // Convert to cents for Stripe
+            $amount = $total * 100; // cents
 
             $paymentIntent = PaymentIntent::create([
                 'amount' => $amount,
@@ -110,14 +110,17 @@ class CheckoutController extends Controller
                 ],
             ]);
 
+            // This part is exactly your original code:
             if ($paymentIntent->status === 'requires_action' && $paymentIntent->next_action->type === 'use_stripe_sdk') {
                 return response()->json([
                     'requires_action' => true,
                     'payment_intent_client_secret' => $paymentIntent->client_secret,
                 ]);
             } elseif ($paymentIntent->status === 'succeeded') {
+
                 $platformEarnings = 0;
 
+                // Transaction to ensure order + stock updates happen atomically
                 DB::transaction(function () use ($cart, $subtotal, $shipping, $total, $validated, $user, &$platformEarnings, &$order) {
                     $order = Order::create([
                         'user_id' => $user->id,
@@ -147,7 +150,6 @@ class CheckoutController extends Controller
                             'status' => 'pending',
                         ]);
 
-                        // Reduce stock
                         if (!empty($item['variation_set_id'])) {
                             $variationSet = ProductVariationSet::find($item['variation_set_id']);
                             if ($variationSet) {
@@ -168,6 +170,7 @@ class CheckoutController extends Controller
 
                 session()->forget('cart');
 
+                // This redirect response matches your original flow, no change here
                 return response()->json(['success' => true, 'redirect' => route('order.confirmed', ['order' => $order->id])]);
             } else {
                 return response()->json(['error' => 'Invalid PaymentIntent status']);
@@ -182,3 +185,4 @@ class CheckoutController extends Controller
         return view('order.confirmed', compact('order'));
     }
 }
+
