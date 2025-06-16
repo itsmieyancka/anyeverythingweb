@@ -32,6 +32,8 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            // Add vendor business_name validation if vendor registration selected
+            'business_name' => ['sometimes', 'string', 'max:255'],
         ]);
 
         $user = User::create([
@@ -40,14 +42,16 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        // Assign role and create vendor if needed
         if ($request->has('register_as_vendor')) {
             $user->assignRole('vendor');
 
-            Vendor::create([
+            // Create vendor record linked to this user
+            $vendor = Vendor::create([
                 'user_id' => $user->id,
                 'business_name' => $request->input('business_name', $user->name . "'s Store"),
             ]);
+
+            // OPTIONAL: you could store vendor id in session or do other logic here
         } else {
             $user->assignRole('user');
         }
@@ -56,7 +60,7 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        // Redirect to appropriate dashboard
+        // Redirect to dashboard depending on role
         if ($user->hasRole('vendor')) {
             return redirect()->route('vendor.dashboard');
         }
