@@ -11,6 +11,7 @@ class CartController extends Controller
 {
     /**
      * Add a product or product variation to the cart.
+     * Responds with JSON if AJAX, otherwise redirects (for non-AJAX fallback).
      */
     public function add(Request $request, Product $product)
     {
@@ -23,27 +24,23 @@ class CartController extends Controller
         $quantity = $validated['quantity'] ?? 1;
 
         if (!empty($validated['variation_option_ids'])) {
+            // Sort selected options to find matching variation set
             $selectedOptionIds = collect($validated['variation_option_ids'])->sort()->values()->toArray();
 
             $variationSet = ProductVariationSet::where('product_id', $product->id)
                 ->get()
                 ->first(function ($set) use ($selectedOptionIds) {
+                    // variation_option_ids is stored as JSON or array
                     $optionIds = collect($set->variation_option_ids)->sort()->values()->toArray();
                     return $optionIds === $selectedOptionIds;
                 });
 
             if (!$variationSet) {
-                if ($request->wantsJson()) {
-                    return response()->json(['error' => 'Selected product variation is not available.'], 422);
-                }
-                return redirect()->back()->withErrors('Selected product variation is not available.');
+                return $this->errorResponse($request, 'Selected product variation is not available.');
             }
 
             if ($variationSet->stock <= 0) {
-                if ($request->wantsJson()) {
-                    return response()->json(['error' => 'Selected variation is out of stock.'], 422);
-                }
-                return redirect()->back()->withErrors('Selected variation is out of stock.');
+                return $this->errorResponse($request, 'Selected variation is out of stock.');
             }
 
             $price = $variationSet->price;
@@ -53,10 +50,7 @@ class CartController extends Controller
             $cartItemKey = $product->id . '-' . implode('-', $selectedOptionIds);
         } else {
             if (($product->stock ?? 0) <= 0) {
-                if ($request->wantsJson()) {
-                    return response()->json(['error' => 'Product is out of stock.'], 422);
-                }
-                return redirect()->back()->withErrors('Product is out of stock.');
+                return $this->errorResponse($request, 'Product is out of stock.');
             }
 
             $price = $product->price;
@@ -86,11 +80,12 @@ class CartController extends Controller
         if ($request->wantsJson()) {
             return response()->json([
                 'message' => 'Product added to cart!',
-                'cartCount' => count($cart),
+                'cartCount' => $this->getCartCount(),
             ]);
         }
 
-        return redirect()->route('cart.index')->with('success', 'Product added to cart!');
+        // fallback redirect (if form submits without JS)
+        return redirect()->back()->with('success', 'Product added to cart!');
     }
 
     /**
@@ -125,4 +120,26 @@ class CartController extends Controller
 
         return redirect()->route('cart.index')->with('success', 'Item removed from cart.');
     }
+
+    /**
+     * Helper to send error response depending on request type.
+     */
+    protected function errorResponse(Request $request, string $message)
+    {
+        if ($request->wantsJson()) {
+            return response()->json(['error' => $message], 422);
+        }
+
+        return redirect()->back()->withErrors($message);
+    }
+
+    /**
+     * Helper to get total cart item count.
+     */
+    protected function getCartCount(): int
+    {
+        $cart = session()->get('cart', []);
+        return array_sum(array_column($cart, 'quantity'));
+    }
 }
+
