@@ -1,13 +1,12 @@
 @extends('layouts.app')
 
-@section('content')
     <div class="max-w-xl mx-auto p-6 bg-white rounded shadow">
         <h2 class="text-2xl font-bold mb-6">Checkout</h2>
 
         {{-- Order Summary --}}
         <div class="mb-6 border-b pb-4">
             <h3 class="font-bold mb-2">Your Order</h3>
-            @foreach($cart_items as $item)
+            @foreach($cart as $item)
                 <div class="flex justify-between py-2">
                     <div>
                         {{ $item->quantity }} × {{ $item->product->name }}
@@ -181,4 +180,4 @@
             });
         </script>
     @endsection
-@endsection
+
