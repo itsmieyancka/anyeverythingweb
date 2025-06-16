@@ -10,120 +10,194 @@
                     <a href="{{ route('home') }}" class="hover:underline text-blue-600">Home</a>
                     <span>/</span>
                 </li>
+                <li>
+                    <a href="{{ route('shop.index') }}" class="hover:underline text-blue-600">Shop</a>
+                    <span>/</span>
+                </li>
                 <li class="text-gray-700">Checkout</li>
                 <li>
+                    <a href="{{ route('shop.index') }}" class="ml-4 text-green-600 font-semibold hover:underline">
+                        &larr; Continue Shopping
+                    </a>
                 </li>
             </ol>
         </nav>
 
-        <h2 class="text-2xl font-semibold mb-4">Checkout</h2>
+            <div class="max-w-xl mx-auto p-6 bg-white rounded shadow">
+                <h2 class="text-2xl font-bold mb-6">Checkout</h2>
 
-        <form id="payment-form">
-            @csrf
+                {{-- Order Summary --}}
+                <div class="mb-6 border-b pb-4">
+                    <h3 class="font-bold mb-2">Your Order</h3>
+                    @foreach($cart as $item)
+                        <div class="flex justify-between py-2">
+                            <div>
+                                {{ $item['quantity'] }} Ã— {{ $item['product']['name'] ?? 'No name' }}
+                                @if(!empty($item['options']))
+                                    <div class="text-sm text-gray-500">{{ $item['options'] }}</div>
+                                @endif
+                            </div>
+                            <div>R{{ number_format($item['price'] * $item['quantity'], 2) }}</div>
+                        </div>
+                    @endforeach
+                </div>
 
-            <label for="name" class="block mb-1 font-medium">Full Name</label>
-            <input type="text" id="name" name="name" required class="w-full mb-4 p-2 border rounded" />
+                {{-- Cost Summary --}}
+                <table class="table-auto w-full text-sm mb-6">
+                    <tr>
+                        <td>Subtotal</td>
+                        <td class="text-right">R<span id="subtotal">{{ number_format($subtotal, 2) }}</span></td>
+                    </tr>
+                    <tr>
+                        <td>Shipping</td>
+                        <td class="text-right">R<span id="shipping-cost">{{ number_format($shipping, 2) }}</span></td>
+                    </tr>
+                    <tr class="font-bold border-t">
+                        <td class="pt-2">Total</td>
+                        <td class="text-right pt-2">R<span id="total-cost">{{ number_format($total, 2) }}</span></td>
+                    </tr>
+                </table>
 
-            <label for="email" class="block mb-1 font-medium">Email</label>
-            <input type="email" id="email" name="email" required class="w-full mb-4 p-2 border rounded" />
+                <form method="POST" action="{{ route('checkout.process') }}">
+                    @csrf
 
-            <label for="phone" class="block mb-1 font-medium">Phone Number</label>
-            <input type="text" id="phone" name="phone" required class="w-full mb-4 p-2 border rounded" />
+                    {{-- Shipping Details --}}
+                    <div class="mb-6">
+                        <h3 class="font-bold mb-4">Shipping Details</h3>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label for="first_name" class="block font-medium">First Name</label>
+                                <input type="text" id="first_name" name="first_name" value="{{ old('first_name', auth()->user()->first_name ?? '') }}" class="input input-bordered w-full mt-1" required>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="address" class="block font-medium">Address</label>
+                            <input type="text" id="address" name="address" value="{{ old('address', auth()->user()->address ?? '') }}" class="input input-bordered w-full mt-1" required>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label for="city" class="block font-medium">City</label>
+                                <input type="text" id="city" name="city" value="{{ old('city', auth()->user()->city ?? '') }}" class="input input-bordered w-full mt-1" required>
+                            </div>
+                            <div>
+                                <label for="postal_code" class="block font-medium">Postal Code</label>
+                                <input type="text" id="postal_code" name="postal_code" value="{{ old('postal_code', auth()->user()->postal_code ?? '') }}" class="input input-bordered w-full mt-1" required>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="phone" class="block font-medium">Phone</label>
+                            <input type="tel" id="phone" name="phone" value="{{ old('phone', auth()->user()->phone ?? '') }}" class="input input-bordered w-full mt-1" required>
+                        </div>
+                    </div>
 
-            <label for="shipping_address" class="block mb-1 font-medium">Shipping Address</label>
-            <input type="text" id="shipping_address" name="shipping_address" required class="w-full mb-4 p-2 border rounded" />
+                    {{-- Shipping Method --}}
+                    <div class="mb-6">
+                        <h3 class="font-bold mb-2">Shipping Method</h3>
+                        <div class="space-y-2">
+                            <label class="flex items-center p-3 border rounded cursor-pointer">
+                                <input type="radio" name="shipping_method" value="standard" class="radio radio-primary" checked data-price="50">
+                                <div class="ml-3 w-full">
+                                    <div class="flex justify-between">
+                                        <span>Standard Shipping</span>
+                                        <span>R50.00</span>
+                                    </div>
+                                    <p class="text-sm text-gray-500">3-5 business days</p>
+                                </div>
+                            </label>
+                            <label class="flex items-center p-3 border rounded cursor-pointer">
+                                <input type="radio" name="shipping_method" value="express" class="radio radio-primary" data-price="100">
+                                <div class="ml-3 w-full">
+                                    <div class="flex justify-between">
+                                        <span>Express Shipping</span>
+                                        <span>R100.00</span>
+                                    </div>
+                                    <p class="text-sm text-gray-500">1-2 business days</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
 
-            <label for="shipping_unit" class="block mb-1 font-medium">Shipping Unit (optional)</label>
-            <input type="text" id="shipping_unit" name="shipping_unit" class="w-full mb-4 p-2 border rounded" />
+                    {{-- Payment Method --}}
+                    <div class="mb-6">
+                        <h3 class="font-bold mb-4">Payment</h3>
+                        <div class="space-y-2 mb-4">
+                            <label class="flex items-center p-3 border rounded cursor-pointer">
+                                <input type="radio" name="payment_method" value="credit_card" class="radio radio-primary" checked>
+                                <span class="ml-3">Credit Card</span>
+                            </label>
+                            <label class="flex items-center p-3 border rounded cursor-pointer">
+                                <input type="radio" name="payment_method" value="paypal" class="radio radio-primary">
+                                <span class="ml-3">PayPal</span>
+                            </label>
+                        </div>
 
-            <label for="billing_address" class="block mb-1 font-medium">Billing Address</label>
-            <input type="text" id="billing_address" name="billing_address" required class="w-full mb-4 p-2 border rounded" />
+                        <div id="credit-card-form">
+                            <div class="mb-4">
+                                <label for="card-holder" class="block font-medium">Cardholder Name</label>
+                                <input type="text" id="card-holder" name="card_holder" class="input input-bordered w-full mt-1" required>
+                            </div>
 
-            <label for="billing_unit" class="block mb-1 font-medium">Billing Unit (optional)</label>
-            <input type="text" id="billing_unit" name="billing_unit" class="w-full mb-4 p-2 border rounded" />
+                            <div class="mb-4">
+                                <label for="card-number" class="block font-medium">Card Number</label>
+                                <input type="text" id="card-number" name="card_number" class="input input-bordered w-full mt-1" placeholder="4242 4242 4242 4242" required>
+                            </div>
 
-            <label for="shipping_method" class="block mb-1 font-medium">Shipping Method</label>
-            <select id="shipping_method" name="shipping_method" required class="w-full mb-4 p-2 border rounded">
-                <option value="standard" selected>Standard</option>
-                <option value="express">Express</option>
-            </select>
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label for="card-expiry" class="block font-medium">Expiry Date</label>
+                                    <input type="text" id="card-expiry" name="card_expiry" class="input input-bordered w-full mt-1" placeholder="MM/YY" required>
+                                </div>
+                                <div>
+                                    <label for="card-cvc" class="block font-medium">CVC</label>
+                                    <input type="text" id="card-cvc" name="card_cvc" class="input input-bordered w-full mt-1" placeholder="123" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-            <label class="block mb-1 font-medium">Card Details</label>
-            <div id="card-element" class="mb-4 p-2 border rounded"></div>
+                    <button type="submit" class="btn btn-primary w-full py-3 text-lg">
+                        Pay R<span id="pay-amount">{{ number_format($total, 2) }}</span>
+                    </button>
+                </form>
+            </div>
+        @endsection
 
-            <div id="payment-errors" class="text-red-600 mb-4"></div>
+        @push('scripts')
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Shipping method change handler
+                    document.querySelectorAll('input[name="shipping_method"]').forEach(radio => {
+                        radio.addEventListener('change', function() {
+                            if(this.checked) {
+                                const shippingCost = parseFloat(this.dataset.price);
+                                const subtotal = parseFloat({{ $subtotal }});
+                                const total = subtotal + shippingCost;
 
-            <button type="submit" id="submit-button" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                Pay Now
-            </button>
-        </form>
-    </div>
+                                document.getElementById('shipping-cost').textContent = shippingCost.toFixed(2);
+                                document.getElementById('total-cost').textContent = total.toFixed(2);
+                                document.getElementById('pay-amount').textContent = total.toFixed(2);
+                            }
+                        });
+                    });
 
-    <script src="https://js.stripe.com/v3/"></script>
-    <script>
-        const stripe = Stripe('{{ $stripeKey }}');
-        const elements = stripe.elements();
-        const cardElement = elements.create('card');
-        cardElement.mount('#card-element');
+                    // Toggle credit card fields
+                    document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
+                        radio.addEventListener('change', function() {
+                            document.getElementById('credit-card-form').style.display =
+                                this.value === 'credit_card' ? 'block' : 'none';
+                        });
+                    });
 
-        const form = document.getElementById('payment-form');
-        const errorsDiv = document.getElementById('payment-errors');
-        const submitButton = document.getElementById('submit-button');
+                    // Format card number
+                    document.getElementById('card-number').addEventListener('input', function(e) {
+                        this.value = this.value.replace(/\s/g, '').replace(/(\d{4})/g, '$1 ').trim();
+                    });
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            errorsDiv.textContent = '';
-            submitButton.disabled = true;
-
-            const { paymentMethod, error } = await stripe.createPaymentMethod({
-                type: 'card',
-                card: cardElement,
-                billing_details: {
-                    name: form.name.value,
-                    email: form.email.value,
-                },
-            });
-
-            if (error) {
-                errorsDiv.textContent = error.message;
-                submitButton.disabled = false;
-                return;
-            }
-
-            const data = {
-                name: form.name.value,
-                email: form.email.value,
-                phone: form.phone.value,
-                shipping_address: form.shipping_address.value,
-                shipping_unit: form.shipping_unit.value,
-                billing_address: form.billing_address.value,
-                billing_unit: form.billing_unit.value,
-                shipping_method: form.shipping_method.value,
-                payment_method_id: paymentMethod.id,
-                _token: '{{ csrf_token() }}'
-            };
-
-            try {
-                const response = await fetch('{{ route("checkout.process") }}', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify(data),
+                    // Format expiry
+                    document.getElementById('card-expiry').addEventListener('input', function(e) {
+                        this.value = this.value.replace(/\D/g, '').replace(/(\d{2})(\d{0,2})/, '$1/$2');
+                    });
                 });
-                const result = await response.json();
+            </script>
+    @endpush
 
-                if (result.error) {
-                    errorsDiv.textContent = result.error;
-                    submitButton.disabled = false;
-                } else if (result.success) {
-                    window.location.href = result.redirect;
-                } else {
-                    errorsDiv.textContent = 'Unexpected error occurred.';
-                    submitButton.disabled = false;
-                }
-            } catch (err) {
-                errorsDiv.textContent = 'Network or server error. Please try again.';
-                submitButton.disabled = false;
-            }
-        });
-    </script>
-@endsection
