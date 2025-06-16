@@ -199,7 +199,6 @@
                         errorsDiv.textContent = '';
 
                         const formData = new FormData(form);
-                        // Optionally, you could gather only the required fields here
 
                         try {
                             const response = await fetch(form.action, {
