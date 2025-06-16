@@ -63,6 +63,7 @@ class CheckoutController extends Controller
 
         try {
             $cart = session('cart', []);
+            // Check stock availability
             foreach ($cart as $item) {
                 if (!empty($item['variation_set_id'])) {
                     $variationSet = ProductVariationSet::find($item['variation_set_id']);
@@ -87,13 +88,14 @@ class CheckoutController extends Controller
             $shipping = $this->calculateShipping($cart, $validated['shipping_method']);
             $total = $subtotal + $shipping;
 
+            // Create and confirm PaymentIntent immediately, automatic confirmation
             $paymentIntent = PaymentIntent::create([
-                'amount' => $total * 100, // Stripe expects cents
+                'amount' => $total * 100, // amount in cents
                 'currency' => 'zar',
                 'payment_method_types' => ['card'],
                 'payment_method' => $validated['payment_method_id'],
-                'confirmation_method' => 'manual',
                 'confirm' => true,
+                'confirmation_method' => 'automatic', // Let Stripe handle confirmation automatically
                 'receipt_email' => $validated['email'],
                 'shipping' => [
                     'name' => $validated['name'],
@@ -109,12 +111,14 @@ class CheckoutController extends Controller
                 ],
             ]);
 
-            if ($paymentIntent->status === 'requires_action' && $paymentIntent->next_action->type === 'use_stripe_sdk') {
+            // If payment requires action (3D Secure), decline for immediate flow
+            if ($paymentIntent->status === 'requires_action') {
                 return response()->json([
-                    'requires_action' => true,
-                    'payment_intent_client_secret' => $paymentIntent->client_secret,
-                ]);
-            } elseif ($paymentIntent->status === 'succeeded') {
+                    'error' => 'Authentication required. Please use a card that does not require 3D Secure for immediate payment.',
+                ], 402);
+            }
+
+            if ($paymentIntent->status === 'succeeded') {
                 $platformEarnings = 0;
 
                 $order = Order::create([
@@ -167,9 +171,9 @@ class CheckoutController extends Controller
                 session()->forget('cart');
 
                 return response()->json(['success' => true, 'redirect' => route('order.confirmed', ['order' => $order->id])]);
-            } else {
-                return response()->json(['error' => 'Invalid PaymentIntent status']);
             }
+
+            return response()->json(['error' => 'Payment failed with status: ' . $paymentIntent->status], 400);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
