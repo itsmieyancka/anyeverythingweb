@@ -1,12 +1,21 @@
 <x-guest-layout>
     <div class="flex min-h-screen w-full">
-        <!-- Left Side: Image taking full half of the screen -->
+        <!-- Left Side: Your website name -->
         <div class="w-1/2 hidden lg:flex">
-            <img src="{{ asset('images/login_promo.jpg') }}" alt="Login Promo"
-                 class="w-full h-full object-cover">
+            <figure class="diff aspect-16/9 w-full" tabindex="0">
+                <div class="diff-item-1" role="img" tabindex="0">
+                    <div class="bg-primary text-primary-content grid place-content-center text-9xl font-black">
+                        ANYEVERYTHING
+                    </div>
+                </div>
+                <div class="diff-item-2" role="img">
+                    <div class="bg-base-200 grid place-content-center text-9xl font-black"></div>
+                </div>
+                <div class="diff-resizer"></div>
+            </figure>
         </div>
 
-        <!-- Right Side: Large login form container -->
+        <!-- Right Side: Login form -->
         <div class="w-1/2 flex items-center justify-center p-12 bg-white shadow-inner">
             <div class="w-full">
                 <!-- Optional Welcome Title -->
