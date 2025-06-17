@@ -1,6 +1,6 @@
 <x-guest-layout>
     <div class="flex min-h-screen w-full">
-        <!-- Left Side: Your website name -->
+        <!-- Left Side: Image with overlay text -->
         <div class="w-1/2 hidden lg:flex">
             <figure class="diff aspect-16/9 w-full" tabindex="0">
                 <div class="diff-item-1" role="img" tabindex="0">
@@ -9,13 +9,13 @@
                     </div>
                 </div>
                 <div class="diff-item-2" role="img">
-                    <div class="bg-base-200 grid place-content-center text-9xl font-black"></div>
+                    <img src="{{ asset('images/login_promo.jpg') }}" alt="Login Promo" class="w-full h-full object-cover" />
                 </div>
                 <div class="diff-resizer"></div>
             </figure>
         </div>
 
-        <!-- Right Side: Login form -->
+        <!-- Right Side: Expanded login form -->
         <div class="w-1/2 flex items-center justify-center p-12 bg-white shadow-inner">
             <div class="w-full">
                 <!-- Optional Welcome Title -->
