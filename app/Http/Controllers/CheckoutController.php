@@ -7,8 +7,8 @@ use Stripe\Stripe;
 use Stripe\PaymentIntent;
 use Stripe\Exception\ApiErrorException;
 use Illuminate\Support\Facades\Session;
-use App\Models\Order;         // You need an Order model for saving orders
-use App\Models\OrderItem;     // And OrderItem model for order lines
+use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Product;
 
 class CheckoutController extends Controller
@@ -17,24 +17,31 @@ class CheckoutController extends Controller
     {
         $cart = session('cart', []);
 
-        // Load product and variationSet models for display
+        // Load product details for display
         foreach ($cart as &$item) {
-            $item['product'] = Product::find($item['product_id']);
+            $item['product'] = Product::with('images')->find($item['product_id']);
             if ($item['variation_set_id']) {
                 $item['variationSet'] = $item['variationSet'] ?? null;
             }
+            $item['total'] = $item['price'] * $item['quantity'];
         }
 
-        return view('checkout', compact('cart'));
+        $subtotal = array_sum(array_column($cart, 'total'));
+        $shippingOptions = [
+            'standard' => ['price' => 50, 'label' => 'Standard Delivery (3-5 days)'],
+            'express' => ['price' => 100, 'label' => 'Express Delivery (1-2 days)']
+        ];
+
+        return view('checkout', compact('cart', 'subtotal', 'shippingOptions'));
     }
 
     public function process(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
-            'phone' => 'required|string',
-            'shipping_address' => 'required|string',
-            'shipping_unit' => 'nullable|string',
+            'phone' => 'required|string|max:20',
+            'shipping_address' => 'required|string|max:255',
+            'shipping_unit' => 'nullable|string|max:50',
             'shipping_method' => 'required|in:standard,express',
             'payment_method_id' => 'required|string',
         ]);
@@ -49,37 +56,36 @@ class CheckoutController extends Controller
             $subtotal += $item['price'] * $item['quantity'];
         }
 
-        $shippingCost = $request->shipping_method === 'express' ? 10000 : 5000; // in cents (R100 or R50)
-        $totalAmount = $subtotal * 100 + $shippingCost; // convert Rands to cents
+        $shippingCost = $request->shipping_method === 'express' ? 10000 : 5000; // in cents
+        $totalAmount = $subtotal * 100 + $shippingCost;
 
         Stripe::setApiKey(config('services.stripe.secret'));
 
         try {
-            // Create PaymentIntent
             $paymentIntent = PaymentIntent::create([
                 'amount' => $totalAmount,
                 'currency' => 'zar',
                 'payment_method' => $request->payment_method_id,
-                'confirmation_method' => 'manual',
+                'confirmation_method' => 'automatic', // changed from 'manual'
                 'confirm' => true,
                 'receipt_email' => $request->email,
                 'metadata' => [
                     'user_email' => $request->email,
+                    'phone' => $request->phone,
+                ],
+                'shipping' => [
+                    'address' => [
+                        'line1' => $request->shipping_address,
+                        'line2' => $request->shipping_unit ?? '',
+                    ],
+                    'name' => $request->email,
+                    'phone' => $request->phone,
                 ],
             ]);
 
-            if ($paymentIntent->status == 'requires_action' && $paymentIntent->next_action->type == 'use_stripe_sdk') {
-                // Tell the frontend to handle the action
-                return response()->json([
-                    'requires_action' => true,
-                    'payment_intent_client_secret' => $paymentIntent->client_secret,
-                ]);
-            } elseif ($paymentIntent->status == 'succeeded') {
-                // Payment successful, create order
-
+            // With automatic confirmation, handle success or failure directly
+            if ($paymentIntent->status == 'succeeded') {
                 $order = $this->createOrder($request, $cart, $subtotal, $shippingCost / 100);
-
-                // Clear cart
                 session()->forget('cart');
 
                 return response()->json([
@@ -87,16 +93,22 @@ class CheckoutController extends Controller
                     'redirect' => route('order.confirmed', ['order' => $order->id]),
                 ]);
             } else {
-                return response()->json(['success' => false, 'error' => 'Payment failed. Please try another payment method.'], 422);
+                // Payment failed or requires further action client-side (rare with automatic)
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Payment failed or requires additional authentication.',
+                ], 422);
             }
         } catch (ApiErrorException $e) {
-            return response()->json(['success' => false, 'error' => $e->getMessage()], 422);
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], 422);
         }
     }
 
     protected function createOrder(Request $request, array $cart, float $subtotal, float $shippingCost)
     {
-        // Basic example: create Order and OrderItems
         $order = Order::create([
             'email' => $request->email,
             'phone' => $request->phone,
@@ -107,10 +119,12 @@ class CheckoutController extends Controller
             'shipping_cost' => $shippingCost,
             'total' => $subtotal + $shippingCost,
             'status' => 'processing',
+            'stripe_payment_intent' => $request->payment_intent_id ?? null,
         ]);
 
         foreach ($cart as $item) {
-            $order->items()->create([
+            OrderItem::create([
+                'order_id' => $order->id,
                 'product_id' => $item['product_id'],
                 'variation_set_id' => $item['variation_set_id'],
                 'quantity' => $item['quantity'],
@@ -121,5 +135,6 @@ class CheckoutController extends Controller
         return $order;
     }
 }
+
 
 

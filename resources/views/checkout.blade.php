@@ -2,8 +2,6 @@
 
 @section('content')
     <div class="max-w-4xl mx-auto p-6">
-
-        {{-- Breadcrumb --}}
         <nav class="mb-6" aria-label="breadcrumb">
             <ol class="flex text-sm text-gray-500 space-x-2">
                 <li>
@@ -15,10 +13,8 @@
         </nav>
 
         <div class="flex flex-col md:flex-row gap-8">
-            {{-- Left: Shipping & Payment Form --}}
             <div class="w-full md:w-2/3">
                 <h2 class="text-xl font-semibold mb-4">Shipping & Payment</h2>
-
                 <form id="checkout-form" method="POST" action="{{ route('checkout.process') }}">
                     @csrf
 
@@ -64,10 +60,8 @@
                 </form>
             </div>
 
-            {{-- Right: Order Summary --}}
             <div class="w-full md:w-1/3 bg-gray-50 p-4 rounded-lg shadow">
                 <h3 class="text-lg font-semibold mb-4">Order Summary</h3>
-
                 @php
                     $cart = session('cart', []);
                     $subtotal = 0;
@@ -82,7 +76,6 @@
                             <span>{{ $item['product']->name ?? 'Unknown product' }} x {{ $item['quantity'] }}</span>
                             <span>R{{ number_format($item['price'] * $item['quantity'], 2) }}</span>
                         </div>
-
                         @if (!empty($item['variationSet']) && !empty($item['variationSet']->variationOptions) && $item['variationSet']->variationOptions->count())
                             <div class="text-xs text-gray-500 mt-1">
                                 Variation: {{ $item['variationSet']->variationOptions->pluck('value')->join(', ') }}
@@ -95,17 +88,14 @@
                     <span>Subtotal:</span>
                     <span>R{{ number_format($subtotal, 2) }}</span>
                 </div>
-
                 <div class="flex justify-between mt-1">
                     <span>Shipping:</span>
                     <span id="shipping-cost">R50.00</span>
                 </div>
-
                 <div class="flex justify-between font-semibold mt-3 border-t pt-2">
                     <span>Total:</span>
                     <span id="total-amount">R{{ number_format($subtotal + 50, 2) }}</span>
                 </div>
-
                 <a href="{{ route('home') }}" class="block text-sm text-blue-600 mt-4 hover:underline">
                     ← Continue Shopping
                 </a>
@@ -156,7 +146,6 @@
                     return;
                 }
 
-                // Append payment_method_id to form data and submit via fetch
                 const formData = new FormData(form);
                 formData.append('payment_method_id', paymentMethod.id);
 
@@ -185,5 +174,3 @@
         });
     </script>
 @endsection
-
-
