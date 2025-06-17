@@ -6,40 +6,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Stripe\Stripe;
 use Stripe\PaymentIntent;
+use App\Models\Product;
+use App\Models\ProductVariationSet;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Vendor;
-use App\Models\Product;
-use App\Models\ProductVariationSet;
 
 class CheckoutController extends Controller
 {
-    public function index()
-    {
-        $cart = session()->get('cart', []);
-        $subtotal = collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']);
-        $shippingMethod = 'standard';
-        $shipping = $this->calculateShipping($cart, $shippingMethod);
-        $total = $subtotal + $shipping;
-
-        return view('checkout', [
-            'cart' => $cart,
-            'subtotal' => $subtotal,
-            'shipping' => $shipping,
-            'shippingMethod' => $shippingMethod,
-            'total' => $total,
-            'stripeKey' => config('services.stripe.key'),
-        ]);
-    }
-
-    private function calculateShipping($cart, $shippingMethod = 'standard')
-    {
-        return match ($shippingMethod) {
-            'express' => 150,
-            default => 50,
-        };
-    }
-
     public function process(Request $request)
     {
         $user = Auth::user();
@@ -56,18 +30,16 @@ class CheckoutController extends Controller
             'shipping_method' => 'required|in:standard,express',
         ]);
 
-        // Use test public key from Stripe (can be overridden in .env)
-        Stripe::setApiKey(config('services.stripe.secret') ?? 'sk_test_4eC39HqLyjWDarjtT1zdp7dc');
+        Stripe::setApiKey(config('services.stripe.secret'));
 
         try {
             $cart = session('cart', []);
-            // Check stock availability
             foreach ($cart as $item) {
                 if (!empty($item['variation_set_id'])) {
                     $variationSet = ProductVariationSet::find($item['variation_set_id']);
                     if (!$variationSet || $variationSet->stock < $item['quantity']) {
                         return response()->json([
-                            'error' => 'Insufficient stock for product: ' . ($item['product_name'] ?? 'Unknown'),
+                            'error' => 'Insufficient stock for product variation.',
                             'product_id' => $item['product_id']
                         ], 422);
                     }
@@ -75,7 +47,7 @@ class CheckoutController extends Controller
                     $product = Product::find($item['product_id']);
                     if (!$product || $product->stock < $item['quantity']) {
                         return response()->json([
-                            'error' => 'Insufficient stock for product: ' . ($product->name ?? 'Unknown'),
+                            'error' => 'Insufficient stock for product.',
                             'product_id' => $item['product_id']
                         ], 422);
                     }
@@ -86,17 +58,13 @@ class CheckoutController extends Controller
             $shipping = $this->calculateShipping($cart, $validated['shipping_method']);
             $total = $subtotal + $shipping;
 
-            // Create PaymentIntent with settings that bypass 3D Secure
             $paymentIntent = PaymentIntent::create([
-                'amount' => $total * 100, // amount in cents
+                'amount' => $total * 100,
                 'currency' => 'zar',
                 'payment_method_types' => ['card'],
                 'payment_method' => $validated['payment_method_id'],
                 'confirm' => true,
-                'capture_method' => 'automatic',
-                'off_session' => true,
                 'confirmation_method' => 'automatic',
-                'setup_future_usage' => 'off_session',
                 'receipt_email' => $validated['email'],
                 'shipping' => [
                     'address' => [
@@ -168,13 +136,14 @@ class CheckoutController extends Controller
             }
 
             return response()->json(['error' => 'Payment failed with status: ' . $paymentIntent->status], 400);
+
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['error' => 'Payment failed: ' . $e->getMessage()], 500);
         }
     }
 
-    public function confirmed(Order $order)
+    private function calculateShipping(array $cart, string $shippingMethod): float
     {
-        return view('order.confirmed', compact('order'));
+        return $shippingMethod === 'express' ? 100.00 : 50.00;
     }
 }
