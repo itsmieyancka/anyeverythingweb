@@ -77,30 +77,28 @@
                 </div>
             </div>
 
-            <!-- Category Card styled like Department Card -->
-            <div class="bg-white rounded-lg shadow-md overflow-hidden relative max-w-sm mx-auto">
-                <h3 class="text-lg font-bold text-black text-center py-3 bg-gray-100 border-b">
-                    Shop by Category
-                </h3>
-
-                <img src="{{ asset('images/categories.jpg') }}" alt="Categories"
-                     class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300" />
-
-                <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center p-4 space-y-2 overflow-auto max-h-64">
-                    @foreach ($categories as $category)
-                        <a href="{{ route('categories.index') }}#{{ \Illuminate\Support\Str::slug($category->name) }}"
-                           class="text-white font-semibold hover:underline whitespace-nowrap"
-                           title="{{ $category->name }}">
-                            {{ $category->name }}
-                        </a>
-                    @endforeach
+            <!-- Category Card -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <h3 class="text-lg font-bold text-black text-center py-3 bg-gray-100 border-b">Shop by Category</h3>
+                <div class="relative">
+                    <img src="{{ asset('images/categories.jpg') }}" alt="Categories"
+                         class="w-full h-64 object-cover" />
+                    <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center space-y-2 p-4 text-center overflow-auto">
+                        @foreach ($categories as $category)
+                            <a href="{{ route('categories.index') }}#{{ \Illuminate\Support\Str::slug($category->name) }}"
+                               class="text-white font-semibold hover:underline">
+                                {{ $category->name }}
+                            </a>
+                        @endforeach
+                    </div>
                 </div>
             </div>
 
-    </div>
 
 
-    <!-- Featured Products Section -->
+
+
+            <!-- Featured Products Section -->
     <div class="container mx-auto px-4 py-6">
         <h1 class="text-2xl font-bold text-black mb-4">Featured Products</h1>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
