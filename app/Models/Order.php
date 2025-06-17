@@ -10,7 +10,7 @@ class Order extends Model
         'user_id',
         'status',
         'subtotal',
-        'shipping_cost',     // corrected key: was 'shipping' in your original fillable
+        'shipping',     // corrected key: was 'shipping' in your original fillable
         'total',
         'platform_earnings',
         'shipping_address',
