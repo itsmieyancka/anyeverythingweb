@@ -1,126 +1,52 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="max-w-4xl mx-auto p-6">
-        {{-- Breadcrumb with Continue Shopping --}}
-        <nav class="mb-6" aria-label="breadcrumb">
-            <ol class="flex text-sm text-gray-500 space-x-2">
-                <li>
-                    <a href="{{ route('home') }}" class="hover:underline text-blue-600">Home</a>
-                    <span>/</span>
-                </li>
-                <li class="text-gray-700">Checkout</li>
-            </ol>
-        </nav>
+    <div class="container">
+        <h2>Checkout</h2>
 
-        <div class="flex flex-col md:flex-row gap-8">
-            {{-- Left: Billing Form --}}
-            <div class="w-full md:w-2/3">
-                <h2 class="text-xl font-semibold mb-4">Shipping & Payment</h2>
+        <form id="payment-form">
+            @csrf
 
-                <form id="checkout-form" method="POST" action="{{ route('checkout.process') }}">
-                    @csrf
-
-                    {{-- Email --}}
-                    <div class="mb-4">
-                        <label for="email" class="block text-sm font-medium">Email</label>
-                        <input type="email" name="email" id="email" class="w-full mt-1 p-2 border rounded-md" required>
-                    </div>
-
-                    {{-- Phone --}}
-                    <div class="mb-4">
-                        <label for="phone" class="block text-sm font-medium">Phone</label>
-                        <input type="text" name="phone" id="phone" class="w-full mt-1 p-2 border rounded-md" required>
-                    </div>
-
-                    {{-- Address --}}
-                    <div class="mb-4">
-                        <label for="shipping_address" class="block text-sm font-medium">Shipping Address</label>
-                        <textarea name="shipping_address" id="shipping_address" rows="3" class="w-full mt-1 p-2 border rounded-md" required></textarea>
-                    </div>
-
-                    {{-- Unit/Apartment --}}
-                    <div class="mb-4">
-                        <label for="shipping_unit" class="block text-sm font-medium">Unit / Apartment (optional)</label>
-                        <input type="text" name="shipping_unit" id="shipping_unit" class="w-full mt-1 p-2 border rounded-md">
-                    </div>
-
-                    {{-- Shipping Method --}}
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium mb-1">Shipping Method</label>
-                        <select name="shipping_method" id="shipping_method" class="w-full p-2 border rounded-md">
-                            <option value="standard">Standard (R50)</option>
-                            <option value="express">Express (R100)</option>
-                        </select>
-                    </div>
-
-                    {{-- Card Element --}}
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium mb-1">Payment</label>
-                        <div id="card-element" class="p-3 border rounded-md bg-white"></div>
-                        <div id="card-errors" class="text-red-500 mt-2 text-sm"></div>
-                    </div>
-
-                    {{-- Submit --}}
-                    <button type="submit" id="submit-button" class="w-full py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700">
-                        Pay Now
-                    </button>
-
-                    {{-- Feedback --}}
-                    <div id="payment-feedback" class="mt-4 text-sm"></div>
-                </form>
+            <div>
+                <label for="email">Email:</label>
+                <input id="email" name="email" type="email" required value="{{ old('email', auth()->user()->email ?? '') }}">
             </div>
 
-            {{-- Right: Order Summary --}}
-            <div class="w-full md:w-1/3 bg-gray-50 p-4 rounded-lg shadow">
-                <h3 class="text-lg font-semibold mb-4">Order Summary</h3>
-
-                @php
-                    $cart = session('cart', []);
-                    $subtotal = 0;
-                    foreach ($cart as $item) {
-                        $subtotal += $item['price'] * $item['quantity'];
-                    }
-                @endphp
-
-                @foreach ($cart as $item)
-                    <div class="mb-3 border-b pb-2">
-                        <div class="flex justify-between text-sm">
-                            {{-- Show product name --}}
-                            <span>{{ $item['product']->name ?? 'Unknown product' }} x {{ $item['quantity'] }}</span>
-
-                            {{-- Show total price for this line item --}}
-                            <span>R{{ number_format($item['price'] * $item['quantity'], 2) }}</span>
-                        </div>
-
-                        {{-- Show variation options if any --}}
-                        @if (!empty($item['variationSet']) && !empty($item['variationSet']->variationOptions) && $item['variationSet']->variationOptions->count())
-                            <div class="text-xs text-gray-500 mt-1">
-                                Variation:
-                                {{ $item['variationSet']->variationOptions->pluck('value')->join(', ') }}
-                            </div>
-                        @endif
-                    </div>
-                @endforeach
-
-                <div class="flex justify-between mt-2">
-                    <span>Subtotal:</span>
-                    <span>R{{ number_format($subtotal, 2) }}</span>
-                </div>
-                <div class="flex justify-between mt-1">
-                    <span>Shipping:</span>
-                    <span id="shipping-cost">R50.00</span>
-                </div>
-                <div class="flex justify-between font-semibold mt-3 border-t pt-2">
-                    <span>Total:</span>
-                    <span id="total-amount">R{{ number_format($subtotal + 50, 2) }}</span>
-                </div>
-
-                <a href="{{ route('home') }}" class="block text-sm text-blue-600 mt-4 hover:underline">
-                    ← Continue Shopping
-                </a>
+            <div>
+                <label for="shipping_address">Shipping Address:</label>
+                <input id="shipping_address" name="shipping_address" type="text" required>
             </div>
-        </div>
+
+            <div>
+                <label for="shipping_unit">Unit / Apartment (optional):</label>
+                <input id="shipping_unit" name="shipping_unit" type="text">
+            </div>
+
+            <div>
+                <label for="phone">Phone Number:</label>
+                <input id="phone" name="phone" type="tel" required>
+            </div>
+
+            <div>
+                <label for="shipping_method">Shipping Method:</label>
+                <select id="shipping_method" name="shipping_method" required>
+                    <option value="standard" selected>Standard (50 ZAR)</option>
+                    <option value="express">Express (150 ZAR)</option>
+                </select>
+            </div>
+
+            <hr>
+
+            <h4>Payment Details</h4>
+
+            <div id="card-element" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                <!-- Stripe.js injects the Card Element here -->
+            </div>
+
+            <div id="card-errors" role="alert" style="color: red; margin-top: 10px;"></div>
+
+            <button id="submit-button" type="submit" style="margin-top: 20px;">Pay {{ number_format($total, 2) }} ZAR</button>
+        </form>
     </div>
 @endsection
 
@@ -128,71 +54,79 @@
     <script src="https://js.stripe.com/v3/"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const stripe = Stripe('{{ config("services.stripe.key") }}');
+            const stripe = Stripe('{{ $stripeKey }}');
             const elements = stripe.elements();
-            const card = elements.create('card');
-            card.mount('#card-element');
 
-            const shippingSelect = document.getElementById('shipping_method');
-            const shippingDisplay = document.getElementById('shipping-cost');
-            const totalDisplay = document.getElementById('total-amount');
-            const subtotal = {{ $subtotal }};
+            // Create and mount the Card Element
+            const cardElement = elements.create('card');
+            cardElement.mount('#card-element');
 
-            function updateTotals() {
-                const shipping = shippingSelect.value === 'express' ? 100 : 50;
-                shippingDisplay.textContent = `R${shipping.toFixed(2)}`;
-                totalDisplay.textContent = `R${(subtotal + shipping).toFixed(2)}`;
-            }
+            const form = document.getElementById('payment-form');
+            const submitButton = document.getElementById('submit-button');
+            const cardErrors = document.getElementById('card-errors');
 
-            shippingSelect.addEventListener('change', updateTotals);
-            updateTotals();
-
-            const form = document.getElementById('checkout-form');
             form.addEventListener('submit', async function (e) {
                 e.preventDefault();
+                submitButton.disabled = true;
+                cardErrors.textContent = '';
 
-                document.getElementById('submit-button').disabled = true;
-                document.getElementById('payment-feedback').textContent = 'Processing payment...';
-                document.getElementById('card-errors').textContent = '';
-
-                const { paymentMethod, error } = await stripe.createPaymentMethod({
+                // Create payment method with card details
+                const {error, paymentMethod} = await stripe.createPaymentMethod({
                     type: 'card',
-                    card: card,
+                    card: cardElement,
+                    billing_details: {
+                        email: form.email.value,
+                        phone: form.phone.value,
+                        address: {
+                            line1: form.shipping_address.value,
+                            line2: form.shipping_unit.value || '',
+                        },
+                    },
                 });
 
                 if (error) {
-                    document.getElementById('card-errors').textContent = error.message;
-                    document.getElementById('submit-button').disabled = false;
-                    document.getElementById('payment-feedback').textContent = '';
+                    cardErrors.textContent = error.message;
+                    submitButton.disabled = false;
                     return;
                 }
 
-                // Append payment_method_id to form data
-                const formData = new FormData(form);
-                formData.append('payment_method_id', paymentMethod.id);
+                // Prepare data to send to backend
+                const data = {
+                    _token: '{{ csrf_token() }}',
+                    email: form.email.value,
+                    shipping_address: form.shipping_address.value,
+                    shipping_unit: form.shipping_unit.value,
+                    phone: form.phone.value,
+                    payment_method_id: paymentMethod.id,
+                    shipping_method: form.shipping_method.value,
+                };
 
-                fetch(form.action, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json',
-                    },
-                    body: formData,
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            window.location.href = data.redirect;
-                        } else {
-                            document.getElementById('payment-feedback').textContent = data.error || 'Payment failed. Please try again.';
-                            document.getElementById('submit-button').disabled = false;
-                        }
-                    })
-                    .catch(() => {
-                        document.getElementById('payment-feedback').textContent = 'Payment failed. Please try again.';
-                        document.getElementById('submit-button').disabled = false;
+                try {
+                    const response = await fetch('{{ route('checkout.process') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': data._token,
+                        },
+                        body: JSON.stringify(data),
                     });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        // Redirect to order confirmation page
+                        window.location.href = result.redirect;
+                    } else {
+                        cardErrors.textContent = result.error || 'Payment failed.';
+                        submitButton.disabled = false;
+                    }
+                } catch (err) {
+                    cardErrors.textContent = 'An unexpected error occurred.';
+                    submitButton.disabled = false;
+                }
             });
         });
     </script>
 @endsection
+
