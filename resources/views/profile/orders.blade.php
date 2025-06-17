@@ -4,9 +4,6 @@
     <div class="container mx-auto p-6">
         <h1 class="text-2xl font-bold mb-6">My Orders</h1>
 
-        <pre>{{ print_r($orders->toArray(), true) }}</pre>
-
-
     @if($orders->count() > 0)
             <div class="space-y-8">
                 @foreach($orders as $order)
