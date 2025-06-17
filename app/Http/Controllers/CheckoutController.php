@@ -54,7 +54,7 @@ class CheckoutController extends Controller
             'status' => 'processing',
             'subtotal' => $subtotal,
             'shipping_cost' => $shippingCost,
-            'commission' => $commission,
+            'platform_earnings' => $commission,
             'total' => $total,
             'shipping_address' => $request->input('address'),
             'shipping_method' => $request->input('shipping_method'),
