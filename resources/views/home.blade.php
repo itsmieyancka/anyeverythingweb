@@ -94,10 +94,6 @@
                 </div>
             </div>
 
-
-
-
-
             <!-- Featured Products Section -->
     <div class="container mx-auto px-4 py-6">
         <h1 class="text-2xl font-bold text-black mb-4">Featured Products</h1>
