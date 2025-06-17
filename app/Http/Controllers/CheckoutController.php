@@ -64,4 +64,9 @@ class CheckoutController extends Controller
     {
         return view('checkout.confirmed', compact('order'));
     }
+
+    public function index()
+    {
+        return view('checkout');
+    }
 }
