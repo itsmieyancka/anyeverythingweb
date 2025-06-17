@@ -19,7 +19,7 @@ class CheckoutController extends Controller
 
         // Load product details for display
         foreach ($cart as &$item) {
-            $item['product'] = Product::with('images')->find($item['product_id']);
+            $item['product'] = Product::find($item['product_id']);
             if ($item['variation_set_id']) {
                 $item['variationSet'] = $item['variationSet'] ?? null;
             }
