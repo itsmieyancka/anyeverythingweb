@@ -1,16 +1,16 @@
 <x-guest-layout>
     <div class="flex min-h-screen w-full">
-        <!-- Left Side: Full Height Image -->
-        <div class="w-3/5 hidden lg:block">
+        <!-- Left Side: Image (50%) -->
+        <div class="w-1/2 hidden md:block">
             <img src="{{ asset('images/login_promo.jpg') }}" alt="Login Promo"
                  class="w-full h-full object-cover">
         </div>
 
-        <!-- Right Side: Wider Login Form -->
-        <div class="w-full lg:w-2/5 flex items-center justify-center p-12 bg-white shadow-inner">
-            <div class="w-full">
-                <!-- Optional Welcome Title -->
-                <h2 class="text-3xl font-bold text-gray-800 mb-6">Welcome Back</h2>
+        <!-- Right Side: Login Form (50%) -->
+        <div class="w-full md:w-1/2 flex items-center justify-center p-12 bg-white">
+            <div class="w-full max-w-md">
+                <!-- Optional Title -->
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">Login to Your Account</h2>
 
                 <!-- Session Status -->
                 <x-auth-session-status class="mb-4" :status="session('status')" />
@@ -18,10 +18,11 @@
                 <form method="POST" action="{{ route('login') }}">
                     @csrf
 
-                    <!-- Email Address -->
+                    <!-- Email -->
                     <div>
                         <x-input-label for="email" :value="__('Email')" />
-                        <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
+                        <x-text-input id="email" class="block mt-1 w-full" type="email" name="email"
+                                      :value="old('email')" required autofocus autocomplete="username" />
                         <x-input-error :messages="$errors->get('email')" class="mt-2" />
                     </div>
 
@@ -42,9 +43,11 @@
                         </label>
                     </div>
 
+                    <!-- Submit + Forgot -->
                     <div class="flex items-center justify-between mt-6">
                         @if (Route::has('password.request'))
-                            <a class="underline text-sm text-gray-600 hover:text-gray-900" href="{{ route('password.request') }}">
+                            <a class="underline text-sm text-gray-600 hover:text-gray-900"
+                               href="{{ route('password.request') }}">
                                 {{ __('Forgot your password?') }}
                             </a>
                         @endif
@@ -58,3 +61,4 @@
         </div>
     </div>
 </x-guest-layout>
+
