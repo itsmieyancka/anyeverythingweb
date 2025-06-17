@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\Category;
 use Illuminate\Support\Facades\Auth;
 
 class UserDashboardController extends Controller
