@@ -2,23 +2,22 @@
 @extends('layouts.app')
 
 @section('content')
-
-            {{-- Spend Range Slider --}}
-            <div class="flex flex-col items-center space-y-2">
-                <label for="spendRange" class="text-sm font-medium">Spend Range</label>
-                <input
-                    type="range"
-                    id="spendRange"
-                    min="50"
-                    max="1000"
-                    value="50"
-                    step="10"
-                    class="range w-full"
-                    oninput="document.getElementById('rangeValue').textContent = this.value"
-                    title="Adjust your spend range"
-                />
-                <div class="text-sm font-semibold text-green-600">R<span id="rangeValue">50</span></div>
-            </div>
+    <div class="max-w-7xl mx-auto px-4 py-6 flex gap-6">
+        {{-- Small left sidebar with compact range slider --}}
+        <div class="w-40 flex flex-col items-center space-y-2">
+            <label for="spendRange" class="text-sm font-medium">Spend Range</label>
+            <input
+                type="range"
+                id="spendRange"
+                min="50"
+                max="1000"
+                value="50"
+                step="10"
+                class="range w-full"
+                oninput="document.getElementById('rangeValue').textContent = this.value"
+                title="Adjust your spend range"
+            />
+            <div class="text-sm font-semibold text-green-600">R<span id="rangeValue">50</span></div>
         </div>
 
         {{-- Main content with products --}}
