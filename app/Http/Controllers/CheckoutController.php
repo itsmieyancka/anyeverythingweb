@@ -91,8 +91,7 @@ class CheckoutController extends Controller
             'shipping' => $shippingCost,
             'platform_earnings' => $commissionTotal,
             'total' => $total,
-            'shipping_address' => $request->input('address'),
-            'shipping_method' => $request->input('shipping_method'),
+
         ]);
 
         // Create order items with vendor_id
