@@ -7,9 +7,8 @@
         </div>
 
         <!-- Right Side: Login Form (50%) -->
-        <div class="w-full md:w-1/2 flex items-center justify-center p-12 bg-white">
+        <div class="w-full md:w-1/2 flex items-center justify-center bg-white p-12">
             <div class="w-full max-w-md">
-                <!-- Optional Title -->
                 <h2 class="text-3xl font-bold text-gray-800 mb-6">Login to Your Account</h2>
 
                 <!-- Session Status -->
@@ -61,4 +60,5 @@
         </div>
     </div>
 </x-guest-layout>
+
 
