@@ -112,7 +112,6 @@ class CheckoutController extends Controller
 
             $order->items()->create([
                 'product_id' => $item['product_id'],
-                'variation_set_id' => $item['variation_set_id'] ?? null,
                 'quantity' => $item['quantity'],
                 'price' => $item['price'],
                 'vendor_id' => $vendorId,
