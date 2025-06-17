@@ -36,7 +36,7 @@ class CheckoutController extends Controller
     }
 
     /**
-     * Handle payment and order creation.
+     * Handle payment and order creation (mock payment, no 3DS).
      */
     public function process(Request $request)
     {
@@ -54,12 +54,13 @@ class CheckoutController extends Controller
             'shipping_method' => 'required|in:standard,express',
         ]);
 
+        // Use Stripe test secret key (never use live key for mock/test)
         Stripe::setApiKey(config('services.stripe.secret') ?? 'sk_test_4eC39HqLyjWDarjtT1zdp7dc');
 
         try {
             $cart = session('cart', []);
 
-            // Check stock availability
+            // Stock check
             foreach ($cart as $item) {
                 if (!empty($item['variation_set_id'])) {
                     $variationSet = ProductVariationSet::find($item['variation_set_id']);
@@ -78,14 +79,20 @@ class CheckoutController extends Controller
             $shipping = $this->calculateShipping($cart, $validated['shipping_method']);
             $total = $subtotal + $shipping;
 
-            // Create Stripe PaymentIntent
+            // Create Stripe PaymentIntent (no 3DS, instant confirmation)
             $paymentIntent = PaymentIntent::create([
-                'amount' => $total * 100, // amount in cents
+                'amount' => $total * 100, // cents
                 'currency' => 'zar',
                 'payment_method_types' => ['card'],
                 'payment_method' => $validated['payment_method_id'],
                 'confirm' => true,
                 'off_session' => true,
+                'confirmation_method' => 'automatic',
+                'payment_method_options' => [
+                    'card' => [
+                        'request_three_d_secure' => 'never', // <-- disables 3DS
+                    ],
+                ],
                 'receipt_email' => $validated['email'],
                 'shipping' => [
                     'address' => [
