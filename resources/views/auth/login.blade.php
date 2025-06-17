@@ -1,26 +1,19 @@
 <x-guest-layout>
-    <!-- Container to increase overall width -->
     <div class="w-full max-w-7xl mx-auto px-4">
         <div class="flex min-h-screen w-full">
-            <!-- Left Side: Image with overlay text -->
-            <div class="w-1/2 hidden lg:flex">
-                <figure class="diff aspect-16/9 w-full" tabindex="0">
-                    <div class="diff-item-1" role="img" tabindex="0">
-                        <div class="bg-primary text-primary-content grid place-content-center text-9xl font-black">
-                            ANYEVERYTHING
-                        </div>
-                    </div>
-                    <div class="diff-item-2" role="img">
+            <!-- Left Side: Your image inside DaisyUI card -->
+            <div class="w-1/2 hidden lg:flex items-center justify-center p-4">
+                <div class="card card-side bg-base-100 shadow-sm w-full max-w-md">
+                    <figure>
                         <img src="{{ asset('images/login_promo.jpg') }}" alt="Login Promo" class="w-full h-full object-cover" />
-                    </div>
-                    <div class="diff-resizer"></div>
-                </figure>
+                    </figure>
+                    <!-- Optional: You can add a card body if you want text beside the image -->
+                </div>
             </div>
 
-            <!-- Right Side: Login form, expanded -->
+            <!-- Right Side: Login form -->
             <div class="w-1/2 flex items-center justify-center p-12 bg-white shadow-inner">
-                <div class="w-full">
-                    <!-- Welcome Title -->
+                <div class="w-full max-w-md">
                     <h2 class="text-3xl font-bold text-gray-800 mb-6">Welcome Back</h2>
 
                     <!-- Session Status -->
@@ -73,7 +66,7 @@
                             </label>
                         </div>
 
-                        <!-- Submit Button and Links -->
+                        <!-- Submit Button and links -->
                         <div class="flex items-center justify-between mt-6">
                             @if (Route::has('password.request'))
                                 <a class="underline text-sm text-gray-600 hover:text-gray-900" href="{{ route('password.request') }}">
