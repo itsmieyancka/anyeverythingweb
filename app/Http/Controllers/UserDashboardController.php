@@ -10,8 +10,8 @@ class UserDashboardController extends Controller
     public function index()
     {
         $products = Product::where('is_active', true)->get();
+        $categories = Category::all(); // Fetch categories
 
-        return view('user.dashboard', compact('products'));
-
+        return view('user.dashboard', compact('products', 'categories'));
     }
 }
