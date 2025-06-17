@@ -18,7 +18,7 @@
             <div class="w-full md:w-2/3">
                 <h2 class="text-xl font-semibold mb-4">Shipping & Payment</h2>
 
-                <form id="checkout-form" method="POST">
+                <form id="checkout-form" method="POST" action="{{ route('checkout.process') }}">
                     @csrf
 
                     {{-- Email --}}
@@ -77,18 +77,27 @@
 
                 @php
                     $cart = session('cart', []);
-                    $subtotal = collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']);
+                    $subtotal = 0;
+                    foreach ($cart as $item) {
+                        $subtotal += $item['price'] * $item['quantity'];
+                    }
                 @endphp
 
                 @foreach ($cart as $item)
                     <div class="mb-3 border-b pb-2">
                         <div class="flex justify-between text-sm">
-                            <span>{{ $item['name'] }} x {{ $item['quantity'] }}</span>
+                            {{-- Show product name --}}
+                            <span>{{ $item['product']->name ?? 'Unknown product' }} x {{ $item['quantity'] }}</span>
+
+                            {{-- Show total price for this line item --}}
                             <span>R{{ number_format($item['price'] * $item['quantity'], 2) }}</span>
                         </div>
-                        @if (!empty($item['variation']))
+
+                        {{-- Show variation options if any --}}
+                        @if (!empty($item['variationSet']) && !empty($item['variationSet']->variationOptions) && $item['variationSet']->variationOptions->count())
                             <div class="text-xs text-gray-500 mt-1">
-                                Variation: {{ $item['variation'] }}
+                                Variation:
+                                {{ $item['variationSet']->variationOptions->pluck('value')->join(', ') }}
                             </div>
                         @endif
                     </div>
@@ -144,6 +153,7 @@
 
                 document.getElementById('submit-button').disabled = true;
                 document.getElementById('payment-feedback').textContent = 'Processing payment...';
+                document.getElementById('card-errors').textContent = '';
 
                 const { paymentMethod, error } = await stripe.createPaymentMethod({
                     type: 'card',
@@ -153,26 +163,28 @@
                 if (error) {
                     document.getElementById('card-errors').textContent = error.message;
                     document.getElementById('submit-button').disabled = false;
+                    document.getElementById('payment-feedback').textContent = '';
                     return;
                 }
 
+                // Append payment_method_id to form data
                 const formData = new FormData(form);
                 formData.append('payment_method_id', paymentMethod.id);
 
-                fetch('{{ route("checkout.process") }}', {
+                fetch(form.action, {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         'Accept': 'application/json',
                     },
-                    body: formData
+                    body: formData,
                 })
-                    .then(res => res.json())
+                    .then(response => response.json())
                     .then(data => {
                         if (data.success) {
                             window.location.href = data.redirect;
                         } else {
-                            document.getElementById('payment-feedback').textContent = data.error || 'Something went wrong.';
+                            document.getElementById('payment-feedback').textContent = data.error || 'Payment failed. Please try again.';
                             document.getElementById('submit-button').disabled = false;
                         }
                     })
