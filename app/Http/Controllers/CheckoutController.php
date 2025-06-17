@@ -3,192 +3,123 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Stripe\Stripe;
 use Stripe\PaymentIntent;
-use App\Models\Order;
-use App\Models\OrderItem;
-use App\Models\Vendor;
+use Stripe\Exception\ApiErrorException;
+use Illuminate\Support\Facades\Session;
+use App\Models\Order;         // You need an Order model for saving orders
+use App\Models\OrderItem;     // And OrderItem model for order lines
 use App\Models\Product;
-use App\Models\ProductVariationSet;
 
 class CheckoutController extends Controller
 {
-    /**
-     * Display the checkout page.
-     */
     public function index()
     {
-        $cart = session()->get('cart', []);
-        $subtotal = collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']);
-        $shippingMethod = 'standard';
-        $shipping = $this->calculateShipping($cart, $shippingMethod);
-        $total = $subtotal + $shipping;
+        $cart = session('cart', []);
 
-        return view('checkout', [
-            'cart' => $cart,
-            'subtotal' => $subtotal,
-            'shipping' => $shipping,
-            'shippingMethod' => $shippingMethod,
-            'total' => $total,
-            'stripeKey' => config('services.stripe.key'),
-        ]);
-    }
-
-    /**
-     * Handle payment and order creation (mock payment, no 3DS).
-     */
-    public function process(Request $request)
-    {
-        $user = Auth::user();
-        if (!$user) {
-            return response()->json(['error' => 'You must be logged in to checkout.'], 401);
+        // Load product and variationSet models for display
+        foreach ($cart as &$item) {
+            $item['product'] = Product::find($item['product_id']);
+            if ($item['variation_set_id']) {
+                $item['variationSet'] = $item['variationSet'] ?? null;
+            }
         }
 
-        $validated = $request->validate([
-            'email' => 'required|email|max:255',
-            'shipping_address' => 'required|string|max:1000',
-            'shipping_unit' => 'nullable|string|max:50',
-            'phone' => 'required|string|max:20',
-            'payment_method_id' => 'required|string',
+        return view('checkout', compact('cart'));
+    }
+
+    public function process(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'phone' => 'required|string',
+            'shipping_address' => 'required|string',
+            'shipping_unit' => 'nullable|string',
             'shipping_method' => 'required|in:standard,express',
+            'payment_method_id' => 'required|string',
         ]);
 
-        // Use Stripe test secret key (never use live key for mock/test)
-        Stripe::setApiKey(config('services.stripe.secret') ?? 'sk_test_4eC39HqLyjWDarjtT1zdp7dc');
+        $cart = session('cart', []);
+        if (empty($cart)) {
+            return response()->json(['success' => false, 'error' => 'Your cart is empty.'], 422);
+        }
+
+        $subtotal = 0;
+        foreach ($cart as $item) {
+            $subtotal += $item['price'] * $item['quantity'];
+        }
+
+        $shippingCost = $request->shipping_method === 'express' ? 10000 : 5000; // in cents (R100 or R50)
+        $totalAmount = $subtotal * 100 + $shippingCost; // convert Rands to cents
+
+        Stripe::setApiKey(config('services.stripe.secret'));
 
         try {
-            $cart = session('cart', []);
-
-            // Stock check
-            foreach ($cart as $item) {
-                if (!empty($item['variation_set_id'])) {
-                    $variationSet = ProductVariationSet::find($item['variation_set_id']);
-                    if (!$variationSet || $variationSet->stock < $item['quantity']) {
-                        return response()->json(['error' => 'Insufficient stock for a product.'], 422);
-                    }
-                } else {
-                    $product = Product::find($item['product_id']);
-                    if (!$product || $product->stock < $item['quantity']) {
-                        return response()->json(['error' => 'Insufficient stock for a product.'], 422);
-                    }
-                }
-            }
-
-            $subtotal = collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']);
-            $shipping = $this->calculateShipping($cart, $validated['shipping_method']);
-            $total = $subtotal + $shipping;
-
-            // Create Stripe PaymentIntent (no 3DS, instant confirmation)
+            // Create PaymentIntent
             $paymentIntent = PaymentIntent::create([
-                'amount' => $total * 100, // cents
+                'amount' => $totalAmount,
                 'currency' => 'zar',
-                'payment_method_types' => ['card'],
-                'payment_method' => $validated['payment_method_id'],
+                'payment_method' => $request->payment_method_id,
+                'confirmation_method' => 'manual',
                 'confirm' => true,
-                'off_session' => true,
-                'confirmation_method' => 'automatic',
-                'payment_method_options' => [
-                    'card' => [
-                        'request_three_d_secure' => 'never', // <-- disables 3DS
-                    ],
-                ],
-                'receipt_email' => $validated['email'],
-                'shipping' => [
-                    'address' => [
-                        'line1' => $validated['shipping_address'],
-                        'line2' => $validated['shipping_unit'] ?? '',
-                    ],
-                    'phone' => $validated['phone'],
-                ],
+                'receipt_email' => $request->email,
                 'metadata' => [
-                    'user_id' => $user->id,
+                    'user_email' => $request->email,
                 ],
             ]);
 
-            // If payment succeeded
-            if (in_array($paymentIntent->status, ['succeeded', 'processing'])) {
-                $platformEarnings = 0;
-
-                $order = Order::create([
-                    'user_id' => $user->id,
-                    'status' => 'paid',
-                    'subtotal' => $subtotal,
-                    'shipping' => $shipping,
-                    'total' => $total,
-                    'shipping_method' => $validated['shipping_method'],
-                    'shipping_address' => $validated['shipping_address'],
-                    'shipping_unit' => $validated['shipping_unit'] ?? null,
-                    'platform_earnings' => 0,
-                    'payment_intent_id' => $paymentIntent->id,
+            if ($paymentIntent->status == 'requires_action' && $paymentIntent->next_action->type == 'use_stripe_sdk') {
+                // Tell the frontend to handle the action
+                return response()->json([
+                    'requires_action' => true,
+                    'payment_intent_client_secret' => $paymentIntent->client_secret,
                 ]);
+            } elseif ($paymentIntent->status == 'succeeded') {
+                // Payment successful, create order
 
-                foreach ($cart as $item) {
-                    $vendor = Vendor::find($item['vendor_id']);
-                    $commissionRate = $vendor->commission_rate ?? 10;
-                    $itemTotal = $item['price'] * $item['quantity'];
-                    $commission = $itemTotal * ($commissionRate / 100);
-                    $platformEarnings += $commission;
-
-                    OrderItem::create([
-                        'order_id' => $order->id,
-                        'product_id' => $item['product_id'],
-                        'vendor_id' => $item['vendor_id'],
-                        'quantity' => $item['quantity'],
-                        'price' => $item['price'],
-                        'status' => 'pending',
-                        'variation_set_id' => $item['variation_set_id'] ?? null,
-                    ]);
-
-                    if (!empty($item['variation_set_id'])) {
-                        $variationSet = ProductVariationSet::lockForUpdate()->find($item['variation_set_id']);
-                        if ($variationSet) {
-                            $variationSet->stock = max(0, $variationSet->stock - $item['quantity']);
-                            $variationSet->save();
-                        }
-                    } else {
-                        $product = Product::lockForUpdate()->find($item['product_id']);
-                        if ($product) {
-                            $product->stock = max(0, $product->stock - $item['quantity']);
-                            $product->save();
-                        }
-                    }
-                }
-
-                $order->update(['platform_earnings' => $platformEarnings]);
+                $order = $this->createOrder($request, $cart, $subtotal, $shippingCost / 100);
 
                 // Clear cart
                 session()->forget('cart');
 
                 return response()->json([
                     'success' => true,
-                    'redirect' => route('order.confirmed', ['order' => $order->id])
+                    'redirect' => route('order.confirmed', ['order' => $order->id]),
                 ]);
+            } else {
+                return response()->json(['success' => false, 'error' => 'Payment failed. Please try another payment method.'], 422);
             }
-
-            return response()->json(['error' => 'Payment failed: ' . $paymentIntent->status], 400);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+        } catch (ApiErrorException $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 422);
         }
     }
 
-    /**
-     * Show the order confirmation page.
-     */
-    public function confirmed(Order $order)
+    protected function createOrder(Request $request, array $cart, float $subtotal, float $shippingCost)
     {
-        return view('order.confirmed', compact('order'));
-    }
+        // Basic example: create Order and OrderItems
+        $order = Order::create([
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'shipping_address' => $request->shipping_address,
+            'shipping_unit' => $request->shipping_unit,
+            'shipping_method' => $request->shipping_method,
+            'subtotal' => $subtotal,
+            'shipping_cost' => $shippingCost,
+            'total' => $subtotal + $shippingCost,
+            'status' => 'processing',
+        ]);
 
-    /**
-     * Calculate shipping cost.
-     */
-    private function calculateShipping($cart, $method = 'standard')
-    {
-        return match ($method) {
-            'express' => 150,
-            default => 50,
-        };
+        foreach ($cart as $item) {
+            $order->items()->create([
+                'product_id' => $item['product_id'],
+                'variation_set_id' => $item['variation_set_id'],
+                'quantity' => $item['quantity'],
+                'price' => $item['price'],
+            ]);
+        }
+
+        return $order;
     }
 }
+
 
