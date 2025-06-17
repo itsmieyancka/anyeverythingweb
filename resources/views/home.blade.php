@@ -95,53 +95,49 @@
             </div>
 
             <!-- Featured & Best Rated Products + FAQ Section -->
-            <div class="container mx-auto px-4 py-10 space-y-16">
+            <div class="container mx-auto px-4 py-10 space-y-12">
 
-                <!-- Featured Products (tall section to match Departments & Categories height) -->
+                <!-- Featured Products -->
                 <div>
-                    <h2 class="text-2xl font-bold text-black mb-6">Featured Products</h2>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8">
+                    <h2 class="text-2xl font-bold text-black mb-4">Featured Products</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                         @foreach($featuredProducts as $product)
-                            <div class="bg-white rounded-lg shadow-md overflow-hidden p-4 transition hover:scale-105">
-                                <x-product-card :product="$product" class="h-full" />
-                            </div>
+                            <x-product-card :product="$product" />
                         @endforeach
                     </div>
                 </div>
 
-                <!-- Best Rated Products (also vertically roomy) -->
+                <!-- Best Rated Products -->
                 <div>
-                    <h2 class="text-2xl font-bold text-black mb-6">Best Rated Products</h2>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8">
+                    <h2 class="text-2xl font-bold text-black mb-4">Best Rated Products</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                         @foreach($bestRatedProducts as $product)
-                            <div class="bg-white rounded-lg shadow-md overflow-hidden p-4 transition hover:scale-105">
-                                <x-product-card :product="$product" class="h-full" />
-                            </div>
+                            <x-product-card :product="$product" />
                         @endforeach
                     </div>
                 </div>
 
                 <!-- FAQ Section -->
                 <div>
-                    <h2 class="text-2xl font-bold text-black mb-6">Frequently Asked Questions</h2>
+                    <h2 class="text-2xl font-bold text-black mb-4">Frequently Asked Questions</h2>
                     <div class="space-y-4">
                         <div class="collapse collapse-arrow bg-base-100 border border-base-300">
                             <input type="radio" name="faq" checked />
-                            <div class="collapse-title font-semibold text-base">How do I create an account?</div>
+                            <div class="collapse-title font-semibold">How do I create an account?</div>
                             <div class="collapse-content text-sm">
                                 Click the "Register" button in the top right corner and follow the registration process.
                             </div>
                         </div>
                         <div class="collapse collapse-arrow bg-base-100 border border-base-300">
                             <input type="radio" name="faq" />
-                            <div class="collapse-title font-semibold text-base">I forgot my password. What should I do?</div>
+                            <div class="collapse-title font-semibold">I forgot my password. What should I do?</div>
                             <div class="collapse-content text-sm">
                                 Click on "Forgot Password" on the login page and follow the instructions sent to your email.
                             </div>
                         </div>
                         <div class="collapse collapse-arrow bg-base-100 border border-base-300">
                             <input type="radio" name="faq" />
-                            <div class="collapse-title font-semibold text-base">How do I update my profile information?</div>
+                            <div class="collapse-title font-semibold">How do I update my profile information?</div>
                             <div class="collapse-content text-sm">
                                 Go to "My Account" settings and select "Edit Profile" to make changes.
                             </div>
