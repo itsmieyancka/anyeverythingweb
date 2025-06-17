@@ -2,22 +2,6 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="max-w-7xl mx-auto px-4 py-6 flex gap-6">
-        {{-- Small left sidebar with categories and spend range --}}
-        <div class="w-40 flex flex-col space-y-6">
-            {{-- Shop by Categories --}}
-            <div>
-                <h2 class="text-sm font-semibold mb-2">Shop by Categories</h2>
-                <nav class="flex flex-col space-y-1 text-xs">
-                    @foreach ($categories as $category)
-                        <a href="{{ route('categories.index') }}#{{ \Illuminate\Support\Str::slug($category->name) }}"
-                           class="text-blue-600 hover:underline truncate"
-                           title="{{ $category->name }}">
-                            {{ $category->name }}
-                        </a>
-                    @endforeach
-                </nav>
-            </div>
 
             {{-- Spend Range Slider --}}
             <div class="flex flex-col items-center space-y-2">
