@@ -94,6 +94,6 @@ class CheckoutController extends Controller
 
     public function confirmed(Order $order)
     {
-        return view('checkout.confirmed', compact('order'));
+        return view('order.confirmed', compact('order'));
     }
 }
