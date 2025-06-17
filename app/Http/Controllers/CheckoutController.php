@@ -61,25 +61,30 @@ class CheckoutController extends Controller
         ]);
 
         foreach ($cart as $item) {
-            $order->items()->create([
-                'product_id' => $item['product_id'],
-                'variation_set_id' => $item['variation_set_id'],
-                'quantity' => $item['quantity'],
-                'price' => $item['price'],
-            ]);
-
-            // Reduce stock
+            // Determine vendor_id
+            $vendorId = null;
             if ($item['variation_set_id']) {
                 $variationSet = ProductVariationSet::find($item['variation_set_id']);
                 if ($variationSet) {
+                    $vendorId = $variationSet->vendor_id;
                     $variationSet->decrement('stock', $item['quantity']);
                 }
             } else {
                 $product = Product::find($item['product_id']);
                 if ($product) {
+                    $vendorId = $product->vendor_id;
                     $product->decrement('stock', $item['quantity']);
                 }
             }
+
+            // Create order item with vendor_id
+            $order->items()->create([
+                'product_id' => $item['product_id'],
+                'variation_set_id' => $item['variation_set_id'],
+                'quantity' => $item['quantity'],
+                'price' => $item['price'],
+                'vendor_id' => $vendorId,
+            ]);
         }
 
         session()->forget('cart');
@@ -92,4 +97,3 @@ class CheckoutController extends Controller
         return view('checkout.confirmed', compact('order'));
     }
 }
-
