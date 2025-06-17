@@ -8,55 +8,68 @@ use App\Models\Product;
 use App\Models\ProductVariationSet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 
 class CheckoutController extends Controller
 {
+    /**
+     * Show the checkout form.
+     */
     public function index()
     {
-        $cart = session()->get('cart', []);
-        $items = [];
+        $cart = session('cart', []);
 
-        foreach ($cart as $item) {
-            $product = Product::find($item['product_id']);
-            $variationSet = $item['variation_set_id']
+        foreach ($cart as &$item) {
+            $item['product'] = Product::find($item['product_id']);
+            $item['variationSet'] = $item['variation_set_id']
                 ? ProductVariationSet::with('variationOptions')->find($item['variation_set_id'])
                 : null;
-
-            $items[] = [
-                'product' => $product,
-                'variationSet' => $variationSet,
-                'quantity' => $item['quantity'],
-                'price' => $item['price'],
-            ];
         }
 
-        return view('checkout', ['cart' => $items]);
+        return view('checkout', compact('cart'));
     }
 
+    /**
+     * Process the checkout and mock payment.
+     */
     public function process(Request $request)
     {
         $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|email',
-            'card_number' => 'required|string|min:16', // mock validation
+            'name' => 'required|string|max:255',
+            'address' => 'required|string',
+            'card_number' => 'required|string',
+            'expiry' => 'required|string',
+            'cvv' => 'required|string',
         ]);
 
-        $cart = session()->get('cart', []);
+        $cart = session('cart', []);
         if (empty($cart)) {
             return redirect()->route('cart.index')->withErrors('Your cart is empty.');
         }
 
-        // Create the order
+        // Mock payment: if any test card number is used, accept it.
+        // In real case, this is where you'd call Stripe or another gateway.
+
+        // Create order
         $order = Order::create([
-            'user_id' => Auth::id(),
-            'order_number' => strtoupper(Str::random(10)),
-            'total' => collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']),
-            'status' => 'processing',
+            'user_id' => Auth::id() ?? null,
+            'name' => $request->name,
+            'address' => $request->address,
+            'status' => 'Processing',
+            'total' => collect($cart)->sum(function ($item) {
+                return $item['price'] * $item['quantity'];
+            }),
         ]);
 
+        // Create order items and reduce stock
         foreach ($cart as $item) {
-            // Reduce stock
+            OrderItem::create([
+                'order_id' => $order->id,
+                'product_id' => $item['product_id'],
+                'variation_set_id' => $item['variation_set_id'],
+                'quantity' => $item['quantity'],
+                'price' => $item['price'],
+            ]);
+
             if ($item['variation_set_id']) {
                 $variationSet = ProductVariationSet::find($item['variation_set_id']);
                 if ($variationSet && $variationSet->stock >= $item['quantity']) {
@@ -70,23 +83,16 @@ class CheckoutController extends Controller
                     $product->save();
                 }
             }
-
-            // Save item to order
-            OrderItem::create([
-                'order_id' => $order->id,
-                'product_id' => $item['product_id'],
-                'variation_set_id' => $item['variation_set_id'],
-                'quantity' => $item['quantity'],
-                'price' => $item['price'],
-            ]);
         }
 
-        // Clear the cart
         session()->forget('cart');
 
-        return redirect()->route('order.confirmed', ['order' => $order->id]);
+        return redirect()->route('order.confirmed', $order);
     }
 
+    /**
+     * Show the confirmation page after checkout.
+     */
     public function confirmed(Order $order)
     {
         return view('checkout.confirmed', compact('order'));
