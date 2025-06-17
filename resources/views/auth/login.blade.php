@@ -1,19 +1,18 @@
 <x-guest-layout>
     <div class="w-full max-w-7xl mx-auto px-4">
         <div class="flex min-h-screen w-full">
-            <!-- Left Side: Image inside DaisyUI card -->
-            <div class="w-1/2 hidden lg:flex items-center justify-center p-4">
-                <div class="card card-side bg-base-100 shadow-sm w-full max-w-md">
-                    <figure>
+            <!-- Left side: Big image card -->
+            <div class="w-1/2 flex items-center justify-center p-4">
+                <div class="card bg-base-100 shadow-lg w-full h-full max-w-3xl">
+                    <figure class="h-full">
                         <img src="{{ asset('images/login_promo.jpg') }}" alt="Login Promo" class="w-full h-full object-cover" />
                     </figure>
                 </div>
             </div>
 
-            <!-- Right Side: Large login form -->
-            <div class="w-1/2 flex items-center justify-center p-12 bg-white shadow-inner">
-                <!-- Make the form container bigger by increasing max width -->
-                <div class="w-full" style="max-width: 600px;"> <!-- Larger width -->
+            <!-- Right side: Login form -->
+            <div class="w-1/2 flex items-center justify-center p-8 bg-white shadow-inner">
+                <div class="w-full max-w-xl">
                     <h2 class="text-3xl font-bold text-gray-800 mb-6">Welcome Back</h2>
 
                     <!-- Session Status -->
@@ -23,7 +22,7 @@
                     <form method="POST" action="{{ route('login') }}">
                         @csrf
 
-                        <!-- Email Address -->
+                        <!-- Email -->
                         <div>
                             <x-input-label for="email" :value="('Email')" />
                             <x-text-input
@@ -66,14 +65,13 @@
                             </label>
                         </div>
 
-                        <!-- Submit Button and links -->
+                        <!-- Submit Button & Links -->
                         <div class="flex items-center justify-between mt-6">
                             @if (Route::has('password.request'))
                                 <a class="underline text-sm text-gray-600 hover:text-gray-900" href="{{ route('password.request') }}">
                                     {{ __('Forgot your password?') }}
                                 </a>
                             @endif
-
                             <x-primary-button class="ml-3">
                                 {{ __('Log in') }}
                             </x-primary-button>
