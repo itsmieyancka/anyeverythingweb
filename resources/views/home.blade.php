@@ -94,43 +94,60 @@
                 </div>
             </div>
 
-            <!-- Featured Products Section -->
-    <div class="container mx-auto px-4 py-6">
-        <h1 class="text-2xl font-bold text-black mb-4">Featured Products</h1>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            @foreach($featuredProducts as $product)
-                <x-product-card :product="$product" />
-            @endforeach
-        </div>
-    </div>
+            <!-- Featured & Best Rated Products + FAQ Section -->
+            <div class="container mx-auto px-4 py-10 space-y-12">
 
-    <!-- Best Rated Products Section -->
-    <div class="container mx-auto px-4 py-6">
-        <h1 class="text-2xl font-bold text-black mb-4">Best Rated Products</h1>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            @foreach($bestRatedProducts as $product)
-                <x-product-card :product="$product" />
-            @endforeach
-        </div>
-    </div>
+                <!-- Featured Products -->
+                <div>
+                    <h2 class="text-2xl font-bold text-black mb-4">Featured Products</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                        @foreach($featuredProducts as $product)
+                            <x-product-card :product="$product" />
+                        @endforeach
+                    </div>
+                </div>
 
-    <div class="collapse collapse-arrow bg-base-100 border border-base-300">
-        <input type="radio" name="my-accordion-2" checked="checked" />
-        <div class="collapse-title font-semibold">How do I create an account?</div>
-        <div class="collapse-content text-sm">Click the "Register" button in the top right corner and follow the registration process.</div>
-    </div>
-    <div class="collapse collapse-arrow bg-base-100 border border-base-300">
-        <input type="radio" name="my-accordion-2" />
-        <div class="collapse-title font-semibold">I forgot my password. What should I do?</div>
-        <div class="collapse-content text-sm">Click on "Forgot Password" on the login page and follow the instructions sent to your email.</div>
-    </div>
-    <div class="collapse collapse-arrow bg-base-100 border border-base-300">
-        <input type="radio" name="my-accordion-2" />
-        <div class="collapse-title font-semibold">How do I update my profile information?</div>
-        <div class="collapse-content text-sm">Go to "My Account" settings and select "Edit Profile" to make changes.</div>
-    </div>
+                <!-- Best Rated Products -->
+                <div>
+                    <h2 class="text-2xl font-bold text-black mb-4">Best Rated Products</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                        @foreach($bestRatedProducts as $product)
+                            <x-product-card :product="$product" />
+                        @endforeach
+                    </div>
+                </div>
 
-    <!-- Countdown Timer Script -->
+                <!-- FAQ Section -->
+                <div>
+                    <h2 class="text-2xl font-bold text-black mb-4">Frequently Asked Questions</h2>
+                    <div class="space-y-4">
+                        <div class="collapse collapse-arrow bg-base-100 border border-base-300">
+                            <input type="radio" name="faq" checked />
+                            <div class="collapse-title font-semibold">How do I create an account?</div>
+                            <div class="collapse-content text-sm">
+                                Click the "Register" button in the top right corner and follow the registration process.
+                            </div>
+                        </div>
+                        <div class="collapse collapse-arrow bg-base-100 border border-base-300">
+                            <input type="radio" name="faq" />
+                            <div class="collapse-title font-semibold">I forgot my password. What should I do?</div>
+                            <div class="collapse-content text-sm">
+                                Click on "Forgot Password" on the login page and follow the instructions sent to your email.
+                            </div>
+                        </div>
+                        <div class="collapse collapse-arrow bg-base-100 border border-base-300">
+                            <input type="radio" name="faq" />
+                            <div class="collapse-title font-semibold">How do I update my profile information?</div>
+                            <div class="collapse-content text-sm">
+                                Go to "My Account" settings and select "Edit Profile" to make changes.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Countdown Timer Script -->
     <script>
         const saleDate = new Date();
         saleDate.setDate(saleDate.getDate() + 40);
