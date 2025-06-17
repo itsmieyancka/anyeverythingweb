@@ -76,7 +76,6 @@
                     </div>
                 </div>
             </div>
-
             <!-- Category Card -->
             <div class="bg-white rounded-lg shadow-md overflow-hidden relative">
                 <h3 class="text-lg font-bold text-black text-center py-3 bg-gray-100 border-b">Shop by Category</h3>
@@ -93,6 +92,8 @@
                 </div>
             </div>
         </div>
+
+    </div>
     </div>
 
     <!-- Featured Products Section -->
