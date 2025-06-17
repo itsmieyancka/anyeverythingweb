@@ -1,19 +1,19 @@
 <x-guest-layout>
     <div class="w-full max-w-7xl mx-auto px-4">
         <div class="flex min-h-screen w-full">
-            <!-- Left Side: Your image inside DaisyUI card -->
+            <!-- Left Side: Image inside DaisyUI card -->
             <div class="w-1/2 hidden lg:flex items-center justify-center p-4">
                 <div class="card card-side bg-base-100 shadow-sm w-full max-w-md">
                     <figure>
                         <img src="{{ asset('images/login_promo.jpg') }}" alt="Login Promo" class="w-full h-full object-cover" />
                     </figure>
-                    <!-- Optional: You can add a card body if you want text beside the image -->
                 </div>
             </div>
 
-            <!-- Right Side: Login form -->
+            <!-- Right Side: Large login form -->
             <div class="w-1/2 flex items-center justify-center p-12 bg-white shadow-inner">
-                <div class="w-full max-w-md">
+                <!-- Make the form container bigger by increasing max width -->
+                <div class="w-full" style="max-width: 600px;"> <!-- Larger width -->
                     <h2 class="text-3xl font-bold text-gray-800 mb-6">Welcome Back</h2>
 
                     <!-- Session Status -->
