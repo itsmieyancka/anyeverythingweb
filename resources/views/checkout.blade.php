@@ -1,55 +1,71 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="max-w-2xl mx-auto p-6 bg-white rounded shadow mt-10">
-        <h1 class="text-2xl font-bold mb-4">Checkout</h1>
+    <div class="max-w-3xl mx-auto p-6 bg-white rounded shadow mt-10">
+        <h1 class="text-2xl font-semibold mb-6">Checkout</h1>
 
         @if ($errors->any())
-            <div class="mb-4 text-red-600">
-                <ul>
+            <div class="mb-4 p-4 bg-red-100 text-red-700 rounded">
+                <ul class="list-disc list-inside">
                     @foreach ($errors->all() as $error)
-                        <li>• {{ $error }}</li>
+                        <li>{{ $error }}</li>
                     @endforeach
                 </ul>
             </div>
         @endif
 
-        <form method="POST" action="{{ route('checkout.process') }}" class="space-y-4">
+        <form action="{{ route('checkout.process') }}" method="POST" id="checkoutForm">
             @csrf
 
-            <div>
-                <label for="name" class="block font-medium">Name</label>
-                <input type="text" name="name" id="name" required class="w-full border rounded p-2">
+            <div class="mb-4">
+                <label for="name" class="block font-medium mb-1">Name</label>
+                <input type="text" name="name" id="name" value="{{ old('name') }}" required
+                       class="input input-bordered w-full" />
             </div>
 
-            <div>
-                <label for="address" class="block font-medium">Shipping Address</label>
-                <textarea name="address" id="address" required class="w-full border rounded p-2"></textarea>
+            <div class="mb-4">
+                <label for="address" class="block font-medium mb-1">Shipping Address</label>
+                <textarea name="address" id="address" rows="3" required
+                          class="textarea textarea-bordered w-full">{{ old('address') }}</textarea>
             </div>
 
-            <div class="mt-6 border-t pt-4">
-                <h2 class="text-lg font-semibold mb-2">Payment Details (Mock)</h2>
+            <div class="mb-6">
+                <span class="block font-medium mb-2">Shipping Method</span>
+                <label class="inline-flex items-center mr-6">
+                    <input type="radio" name="shipping_method" value="standard" {{ old('shipping_method', 'standard') == 'standard' ? 'checked' : '' }} required />
+                    <span class="ml-2">Standard Shipping (5-7 days) - R40</span>
+                </label>
+                <label class="inline-flex items-center">
+                    <input type="radio" name="shipping_method" value="express" {{ old('shipping_method') == 'express' ? 'checked' : '' }} />
+                    <span class="ml-2">Express Shipping (1-2 days) - R80</span>
+                </label>
+            </div>
 
-                <div>
-                    <label for="card_number" class="block">Card Number</label>
-                    <input type="text" name="card_number" id="card_number" required class="w-full border rounded p-2" placeholder="4242 4242 4242 4242">
+            <h2 class="text-xl font-semibold mb-4">Payment Details</h2>
+
+            <div class="mb-4">
+                <label for="card_number" class="block font-medium mb-1">Card Number</label>
+                <input type="text" name="card_number" id="card_number" value="{{ old('card_number') }}" placeholder="4242 4242 4242 4242" required
+                       class="input input-bordered w-full" />
+            </div>
+
+            <div class="mb-4 flex space-x-4">
+                <div class="flex-1">
+                    <label for="expiry" class="block font-medium mb-1">Expiry (MM/YY)</label>
+                    <input type="text" name="expiry" id="expiry" value="{{ old('expiry') }}" placeholder="11/35" required
+                           class="input input-bordered w-full" />
                 </div>
-
-                <div class="flex gap-4 mt-2">
-                    <div class="w-1/2">
-                        <label for="expiry" class="block">Expiry</label>
-                        <input type="text" name="expiry" id="expiry" required class="w-full border rounded p-2" placeholder="12/34">
-                    </div>
-
-                    <div class="w-1/2">
-                        <label for="cvc" class="block">CVC</label>
-                        <input type="text" name="cvc" id="cvc" required class="w-full border rounded p-2" placeholder="123">
-                    </div>
+                <div class="flex-1">
+                    <label for="cvc" class="block font-medium mb-1">CVC</label>
+                    <input type="text" name="cvc" id="cvc" value="{{ old('cvc') }}" placeholder="123" required
+                           class="input input-bordered w-full" />
                 </div>
             </div>
 
-            <button type="submit" class="w-full mt-6 bg-blue-600 text-white rounded p-3 hover:bg-blue-700">
-                Pay Now
+            <button type="submit"
+                    class="btn btn-primary w-full py-3 text-lg"
+                    id="payButton">
+                Pay
             </button>
         </form>
     </div>
