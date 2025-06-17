@@ -88,7 +88,7 @@ class CheckoutController extends Controller
             'user_id' => Auth::id(),
             'status' => 'processing',
             'subtotal' => $subtotal,
-            'shipping_cost' => $shippingCost,
+            'shipping' => $shippingCost,
             'platform_earnings' => $commissionTotal,
             'total' => $total,
             'shipping_address' => $request->input('address'),
