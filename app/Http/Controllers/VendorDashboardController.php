@@ -19,7 +19,7 @@ class VendorDashboardController extends Controller
             $query->where('vendor_id', $vendorId);
         })
             ->with([
-                'orderItems' => function ($query) use ($vendorId) {
+                'Items' => function ($query) use ($vendorId) {
                     $query->where('vendor_id', $vendorId)->with('product');
                 },
                 'user'
