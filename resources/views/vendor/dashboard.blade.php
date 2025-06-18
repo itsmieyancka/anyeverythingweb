@@ -53,7 +53,7 @@
                             <p class="text-sm text-gray-500">Placed: {{ $order->created_at->format('F j, Y, g:i a') }}</p>
 
                             <ul class="mt-2 text-sm list-disc list-inside">
-                                @foreach ($order->orderItems as $item)
+                                @foreach ($order->Items as $item)
                                     <li>
                                         {{ $item->product->name }} - Quantity: {{ $item->quantity }} - Total: R{{ number_format($item->price * $item->quantity, 2) }}
                                         <br>
