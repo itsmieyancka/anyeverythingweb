@@ -55,7 +55,7 @@
                             <ul class="mt-2 text-sm list-disc list-inside">
                                 @foreach ($order->orderItems as $item)
                                     <li>
-                                        {{ $item->product->name }} - Quantity: {{ $item->quantity }} - Total: R{{ number_format($item->total, 2) }}
+                                        {{ $item->product->name }} - Quantity: {{ $item->quantity }} - Total: R{{ number_format($item->price * $item->quantity, 2) }}
                                     </li>
                                 @endforeach
                             </ul>
