@@ -16,7 +16,7 @@ class TeamChat extends Component
 
     public function mount()
     {
-        $this->admins = User::where('is_admin', true)->where('id', '!=', Auth::id())->get();
+        $this->admins = User::role('admin')->where('id', '!=', Auth::id())->get();
         $this->receiverId = $this->admins->first()?->id;
 
         $this->loadMessages();
