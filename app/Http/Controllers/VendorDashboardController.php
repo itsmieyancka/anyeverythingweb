@@ -15,7 +15,7 @@ class VendorDashboardController extends Controller
         $vendorId = Vendor::where('user_id', auth()->id())->value('id');
 
         // Fetch orders that include products belonging to this vendor
-        $orders = Order::whereHas('orderItems', function ($query) use ($vendorId) {
+        $orders = Order::whereHas('Items', function ($query) use ($vendorId) {
             $query->where('vendor_id', $vendorId);
         })
             ->with([
