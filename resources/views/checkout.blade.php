@@ -72,7 +72,9 @@
                     @foreach ($cart as $item)
                         <li class="py-2 flex justify-between items-start">
                             <div>
-                                <p class="font-medium">{{ $item['name'] }}</p>
+                                <p class="font-medium">
+                                    {{ $item['product']->name ?? 'Unnamed Product' }}
+                                </p>
                                 <p class="text-sm text-gray-500">x{{ $item['quantity'] }}</p>
                             </div>
                             <p class="text-right">R{{ number_format($item['price'] * $item['quantity'], 2) }}</p>

@@ -10,21 +10,26 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class CheckoutController extends Controller
+
 {
     public function index()
     {
         $cart = session('cart', []);
-        $subtotal = collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']);
-        $shippingMethods = ['standard' => 40, 'express' => 80];
-        $selectedShipping = session('selected_shipping', 'standard');
-        $shipping = $shippingMethods[$selectedShipping] ?? 40;
-        $total = $subtotal + $shipping;
 
-        return view('checkout', compact('cart', 'subtotal', 'shipping', 'total'));
+        foreach ($cart as &$item) {
+            $item['variationSet'] = $item['variation_set_id']
+                ? ProductVariationSet::with('variationOptions')->find($item['variation_set_id'])
+                : null;
+            $item['product'] = Product::find($item['product_id']);
+        }
+
+        $subtotal = collect($cart)->sum(fn($item) => ($item['price'] ?? 0) * ($item['quantity'] ?? 1));
+
+        return view('checkout', compact('cart', 'subtotal'));
     }
 
 
-    public function process(Request $request)
+public function process(Request $request)
     {
         $cart = session('cart', []);
 
