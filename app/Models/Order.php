@@ -22,7 +22,7 @@ class Order extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function Orderitems()
+    public function items()
     {
         return $this->hasMany(OrderItem::class);
     }
