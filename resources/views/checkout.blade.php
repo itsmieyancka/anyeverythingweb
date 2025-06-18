@@ -98,16 +98,19 @@
             document.getElementById('loading-spinner').classList.remove('hidden');
             document.getElementById('payButton').disabled = true;
 
-            // Simulate 1.5s delay, then show success, then submit after 2s
+            // Show spinner for 10 seconds
             setTimeout(() => {
                 document.getElementById('loading-spinner').classList.add('hidden');
                 document.getElementById('success-message').classList.remove('hidden');
 
+                // Show success message for 2 seconds, then submit the form
                 setTimeout(() => {
                     e.target.submit();
                 }, 2000);
-            }, 1500);
+            }, 10000); // 10,000 milliseconds = 10 seconds
         });
     </script>
 @endpush
+
+
 
