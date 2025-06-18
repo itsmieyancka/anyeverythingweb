@@ -13,8 +13,16 @@ class CheckoutController extends Controller
 {
     public function index()
     {
-        return view('checkout');
+        $cart = session('cart', []);
+        $subtotal = collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']);
+        $shippingMethods = ['standard' => 40, 'express' => 80];
+        $selectedShipping = session('selected_shipping', 'standard');
+        $shipping = $shippingMethods[$selectedShipping] ?? 40;
+        $total = $subtotal + $shipping;
+
+        return view('checkout', compact('cart', 'subtotal', 'shipping', 'total'));
     }
+
 
     public function process(Request $request)
     {
