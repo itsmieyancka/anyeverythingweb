@@ -56,22 +56,15 @@
                                 @foreach ($order->orderItems as $item)
                                     <li>
                                         {{ $item->product->name }} - Quantity: {{ $item->quantity }} - Total: R{{ number_format($item->price * $item->quantity, 2) }}
+                                        <br>
+                                        <span class="italic text-gray-600">Prepare order</span>
                                     </li>
                                 @endforeach
                             </ul>
-                            @foreach ($order->orderItems as $item)
-                                <li>
-                                    {{ $item->product->name }} - Quantity: {{ $item->quantity }} - Total: R{{ number_format($item->price * $item->quantity, 2) }}
-                                    <br>
-                                    <span class="italic text-gray-600">Prepare order</span>
-                                </li>
-                            @endforeach
-
                         </div>
                     @endforeach
                 </div>
             @endif
         </section>
-
     </div>
 @endsection
