@@ -25,8 +25,14 @@ class CheckoutController extends Controller
 
         $subtotal = collect($cart)->sum(fn($item) => ($item['price'] ?? 0) * ($item['quantity'] ?? 1));
 
-        return view('checkout', compact('cart', 'subtotal'));
+        // Static shipping for now — you can replace this with dynamic logic later
+        $shipping = 49.00;
+
+        $total = $subtotal + $shipping;
+
+        return view('checkout', compact('cart', 'subtotal', 'shipping', 'total'));
     }
+
 
 
 public function process(Request $request)
