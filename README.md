@@ -6,17 +6,22 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
-            HOMEPAGE
+
+
+          HOMEPAGE
 <img width="1903" height="958" alt="Screenshot 2025-06-26 145240" src="https://github.com/user-attachments/assets/19dcef9c-75ee-4a43-9bcf-9868c007fd49" />
 <img width="1919" height="962" alt="Screenshot 2025-06-26 145312" src="https://github.com/user-attachments/assets/5e2fd126-5ed2-473a-bd7e-aea5c13bd3d1" />
 <img width="1877" height="957" alt="Screenshot 2025-06-26 145341" src="https://github.com/user-attachments/assets/d8300b23-be06-4e61-9903-2271d4034dc1" />
-<img width="1902" height="964" alt="Screenshot 2025-06-26 145846" src="https://github.com/user-attachments/assets/30833331-f4bf-47d2-bde9-b6c06b81f1a6" />
            USERDASHBOARD
+<img width="1902" height="964" alt="Screenshot 2025-06-26 145846" src="https://github.com/user-attachments/assets/30833331-f4bf-47d2-bde9-b6c06b81f1a6" />
 <img width="1903" height="956" alt="Screenshot 2025-06-26 145924" src="https://github.com/user-attachments/assets/71140e79-bba8-4526-8913-8fd3756861fa" />
            ADMIN DASHBOARD
-<img width="1905" height="950" alt="Screenshot 2025-06-26 150041" src="https://github.com/user-attachments/assets/1a662764-6512-442c-a9c8-6c1f4a4f6d4c" />
-<img width="1630" height="807" alt="Screenshot 2025-06-26 150131" src="https://github.com/user-attachments/assets/0da799c1-4570-4b6b-9f1b-6f19d95d889d" />
 <img width="1903" height="960" alt="Screenshot 2025-06-26 150151" src="https://github.com/user-attachments/assets/1762fe5d-af52-4728-9906-f8293d543008" />
+<img width="1907" height="965" alt="Screenshot 2025-06-26 150210" src="https://github.com/user-attachments/assets/a683dd94-c6e7-442e-a205-b60897b7914f" />
+<img width="1907" height="968" alt="Screenshot 2025-06-26 150309" src="https://github.com/user-attachments/assets/f4b51417-d3e0-4788-97cc-e9822bc135b4" />
+<img width="1907" height="970" alt="Screenshot 2025-06-26 150337" src="https://github.com/user-attachments/assets/f27b9afb-5a2c-40aa-83b5-16c70de1c0cd" />
+           VENDOR DASHBOARD
+<img width="1892" height="951" alt="Screenshot 2025-06-04 235237" src="https://github.com/user-attachments/assets/de020742-aa13-4644-a5fd-c0a541cba1e5" />
 
 ## About Laravel
 
