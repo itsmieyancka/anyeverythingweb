@@ -20,8 +20,7 @@
 <img width="1907" height="965" alt="Screenshot 2025-06-26 150210" src="https://github.com/user-attachments/assets/a683dd94-c6e7-442e-a205-b60897b7914f" />
 <img width="1907" height="968" alt="Screenshot 2025-06-26 150309" src="https://github.com/user-attachments/assets/f4b51417-d3e0-4788-97cc-e9822bc135b4" />
 <img width="1907" height="970" alt="Screenshot 2025-06-26 150337" src="https://github.com/user-attachments/assets/f27b9afb-5a2c-40aa-83b5-16c70de1c0cd" />
-           VENDOR DASHBOARD
-<img width="1892" height="951" alt="Screenshot 2025-06-04 235237" src="https://github.com/user-attachments/assets/de020742-aa13-4644-a5fd-c0a541cba1e5" />
+           
 
 ## About Laravel
 
